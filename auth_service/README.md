@@ -38,3 +38,9 @@ npm init -y
 ```bash
 npm i nodemon -D
 ```
+
+3. Install All dependencies
+
+```bash
+npm i express dotenv mongoose bcryptjs jsonwebtoken cookie-parser cors
+```
