@@ -27,7 +27,7 @@ app.use(express.urlencoded({extended: true})); // Middleware to parse URL-encode
 app.use(errorHandler); // Apply global error handler
 
 // Routes
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 // Start the server on the specified port
 app.listen(PORT, () => {
