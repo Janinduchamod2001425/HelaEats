@@ -3,7 +3,7 @@
 - **Description**: Handles user authentication, authorization, and user management.
 - **User Roles**: Customer, Restaurant Admin, Delivery Driver, System Admin.
 
-### Tech Stack 
+### Tech Stack
 
 - Node.js
 - Express
@@ -13,16 +13,18 @@
 - Kubernetes
 
 ### API Endpoints
+
 ```
-/api/v1/auth/signup, 
-/api/v1/auth/login, 
-/api/v1/auth/logout, 
-/api/v1/auth/profile, 
-/api/v1/auth/forgotpassword, 
-/api/v1/auth/resetpassword, 
-/api/v1/auth/updatepassword, 
-/api/v1/auth/updatedetails, 
-/api/v1/auth/deleteaccount
+/api/auth/signup/customer, 
+/api/auth/signup/admin, 
+/api/auth/login, 
+/api/auth/logout, 
+/api/auth/profile, 
+/api/auth/forgotpassword, 
+/api/auth/resetpassword, 
+/api/auth/updatepassword, 
+/api/auth/updatedetails, 
+/api/auth/deleteaccount
 ```
 
 ### Backend Setup
