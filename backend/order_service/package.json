@@ -1,0 +1,21 @@
+{
+  "name": "order_service",
+  "version": "1.0.0",
+  "description": "- **Description**: \r - **Tech Stack**: \r - **User Roles**:",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start:order": "nodemon order_service/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
