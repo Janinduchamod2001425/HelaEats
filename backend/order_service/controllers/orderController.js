@@ -37,3 +37,23 @@ export const confirmOrder = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// get order history
+export const getOrderHistory = async (req, res) => {
+  const userId = req.query.userId || req.body.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "Missing userId" });
+  }
+
+  try {
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+    if (!orders.length) {
+      return res.status(404).json({ message: "No orders found" });
+    }
+
+    res.status(200).json({ orders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

@@ -110,6 +110,10 @@ export const deleteItem = async (req, res) => {
 export const getCart = async (req, res) => {
   const userId = req.body.userId || req.query.userId;
 
+  if (!userId) {
+    return res.status(400).json({ message: "Missing userId in request" });
+  }
+
   try {
     const cart = await Cart.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
