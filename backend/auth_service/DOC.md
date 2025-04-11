@@ -84,8 +84,7 @@ Sample Dataset
   "email": "owner@restaurant.com",
   "password": "restaurantadmin123",
   "contact": "0762145639",
-  "role": "restaurant_admin",
-  "restaurantId": "rest_123"
+  "role": "restaurant_admin"
 }
 ```
 
@@ -100,6 +99,37 @@ Sample Dataset
 {
   "restaurantId": "rest_123",
   "contact": "0704830006",
+  "isProfileComplete": true
+}
+```
+
+### Create Delivery Personnel Account
+
+- **Endpoint**: `/api/auth/admin/signup`
+- **Method**: `POST`
+
+Sample Dataset
+
+```json
+{
+  "name": "Delivery Man 1",
+  "email": "deliveryman1@gmail.com",
+  "password": "deliver123",
+  "role": "delivery_personnel"
+}
+```
+
+### Complete Profile (Delivery Personnel)
+
+- **Endpoint**: `/api/auth/complete-profile`
+- **Method**: `POST`
+
+Sample Dataset
+
+```json
+{
+  "vehicleNumber": "DL-01-AB-1234",
+  "contact": "0710597867",
   "isProfileComplete": true
 }
 ```
