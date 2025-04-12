@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5001;
 
 // Connect to the database before start the server
 connectDB().then(r => {
-    console.log("✅ Database Connected!");
+    console.log("✅ Auth Database Connected!");
 });
 
 // Middlewares
