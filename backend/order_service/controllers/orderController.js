@@ -3,6 +3,7 @@ import Cart from "../models/cart.js";
 import Order from "../models/order.js";
 import { v4 as uuidv4 } from "uuid";
 
+// confirm the order
 export const confirmOrder = async (req, res) => {
   const { userId } = req.body;
 
@@ -53,6 +54,27 @@ export const getOrderHistory = async (req, res) => {
     }
 
     res.status(200).json({ orders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// get order status
+export const getOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findOne({ orderId });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json({
+      orderId: order.orderId,
+      status: order.status,
+      createdAt: order.createdAt,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
