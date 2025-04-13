@@ -83,7 +83,6 @@ Sample Dataset
   "name": "Restaurant Owner",
   "email": "owner@restaurant.com",
   "password": "restaurantadmin123",
-  "contact": "0762145639",
   "role": "restaurant_admin"
 }
 ```
@@ -112,14 +111,14 @@ Sample Dataset
 
 ```json
 {
-  "name": "Delivery Man 1",
-  "email": "deliveryman1@gmail.com",
-  "password": "deliver123",
+  "name": "Bob Delivery",
+  "email": "bob@delivery.com",
+  "password": "123456",
   "role": "delivery_personnel"
 }
 ```
 
-### Complete Profile (Delivery Personnel)
+### Complete Profile (Restaurant Admin)
 
 - **Endpoint**: `/api/auth/complete-profile`
 - **Method**: `POST`
@@ -128,8 +127,16 @@ Sample Dataset
 
 ```json
 {
-  "vehicleNumber": "DL-01-AB-1234",
-  "contact": "0710597867",
+  "vehicleNumber": "DL-AB-1234",
+  "contact": "+9876543210",
+  "status": "available",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      77.5946,
+      12.9716
+    ]
+  },
   "isProfileComplete": true
 }
 ```

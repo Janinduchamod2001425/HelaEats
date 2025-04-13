@@ -24,6 +24,7 @@ const seedFirstAdmin = async () => {
             email: "admin@first.com",
             password: hashedPassword,
             role: "system_admin",
+            contact: "0912248890",
             isProfileComplete: true,
         });
 
