@@ -1,4 +1,4 @@
-# Backend Setup (Auth Service)
+# Backend Setup (Delivery Service)
 
 1. Install node modules
 
@@ -15,5 +15,5 @@ npm i nodemon -D
 3. Install All dependencies
 
 ```bash
-npm i express dotenv mongoose bcryptjs jsonwebtoken cookie-parser cors
+npm i express dotenv mongoose jsonwebtoken cookie-parser cors
 ```
