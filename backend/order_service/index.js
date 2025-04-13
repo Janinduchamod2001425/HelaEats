@@ -3,11 +3,13 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import cors from "cors";
 
 dotenv.config();
 const port = process.env.PORT || 3001;
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 //Routes

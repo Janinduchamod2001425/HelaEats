@@ -10,18 +10,68 @@ const mockData = JSON.parse(
 );
 
 // ✅ Add item to restaurant basket
+// export const addItem = async (req, res) => {
+//   const { userId, itemId, quantity } = req.body;
+//   const { restaurantId } = req.params;
+
+//   try {
+//     // Validate restaurant
+//     const restaurant = mockData.find((rest) => rest.id === restaurantId);
+//     if (!restaurant) {
+//       return res.status(404).json({ message: "Restaurant not found" });
+//     }
+
+//     // Validate item
+//     const item = restaurant.items.find((i) => i.itemId === itemId);
+//     if (!item) {
+//       return res
+//         .status(404)
+//         .json({ message: "Item not found in this restaurant" });
+//     }
+
+//     let cart = await Cart.findOne({ userId });
+//     if (!cart) cart = new Cart({ userId, baskets: [] });
+
+//     let basket = cart.baskets.find((b) => b.restaurantId === restaurantId);
+//     if (!basket) {
+//       basket = { restaurantId, items: [] };
+//       cart.baskets.push(basket);
+//     }
+
+//     const existingItem = basket.items.find((i) => i.itemId === itemId);
+//     if (existingItem) {
+//       existingItem.quantity += quantity;
+//     } else {
+//       basket.items.push({
+//         itemId: item.itemId,
+//         name: item.name,
+//         price: item.price,
+//         quantity,
+//       });
+//     }
+
+//     await cart.save();
+//     res.status(200).json(cart);
+//     console.log("restaurantId:", restaurantId);
+//     console.log("itemId:", itemId);
+//     console.log("Found restaurant:", restaurant?.name);
+//     console.log("Found item:", item);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 export const addItem = async (req, res) => {
   const { userId, itemId, quantity } = req.body;
   const { restaurantId } = req.params;
 
   try {
-    // Validate restaurant
-    const restaurant = mockData.find((rest) => rest.id === restaurantId);
+    // Find restaurant and item from mock data
+    const restaurant = mockData.find((r) => r.id === restaurantId);
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
 
-    // Validate item
     const item = restaurant.items.find((i) => i.itemId === itemId);
     if (!item) {
       return res
@@ -30,32 +80,64 @@ export const addItem = async (req, res) => {
     }
 
     let cart = await Cart.findOne({ userId });
-    if (!cart) cart = new Cart({ userId, baskets: [] });
-
-    let basket = cart.baskets.find((b) => b.restaurantId === restaurantId);
-    if (!basket) {
-      basket = { restaurantId, items: [] };
-      cart.baskets.push(basket);
-    }
-
-    const existingItem = basket.items.find((i) => i.itemId === itemId);
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      basket.items.push({
-        itemId: item.itemId,
-        name: item.name,
-        price: item.price,
-        quantity,
+    if (!cart) {
+      // First time → create new cart with one basket and one item
+      cart = new Cart({
+        userId,
+        baskets: [
+          {
+            restaurantId,
+            items: [
+              {
+                itemId: item.itemId,
+                name: item.name,
+                quantity,
+                price: item.price,
+              },
+            ],
+          },
+        ],
       });
+    } else {
+      // Check if basket already exists
+      const basketIndex = cart.baskets.findIndex(
+        (b) => b.restaurantId === restaurantId
+      );
+
+      if (basketIndex === -1) {
+        // No basket yet → add one
+        cart.baskets.push({
+          restaurantId,
+          items: [
+            {
+              itemId: item.itemId,
+              name: item.name,
+              quantity,
+              price: item.price,
+            },
+          ],
+        });
+      } else {
+        // Basket exists → check if item exists
+        const existingItem = cart.baskets[basketIndex].items.find(
+          (i) => i.itemId === itemId
+        );
+
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          cart.baskets[basketIndex].items.push({
+            itemId: item.itemId,
+            name: item.name,
+            quantity,
+            price: item.price,
+          });
+        }
+      }
     }
 
     await cart.save();
     res.status(200).json(cart);
-    console.log("restaurantId:", restaurantId);
-    console.log("itemId:", itemId);
-    console.log("Found restaurant:", restaurant?.name);
-    console.log("Found item:", item);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -108,7 +190,7 @@ export const deleteItem = async (req, res) => {
 
 // ✅ Get full cart (read-only)
 export const getCart = async (req, res) => {
-  const userId = req.body.userId || req.query.userId;
+  const userId = req.query.userId || req.body.userId || req.headers["user-id"];
 
   if (!userId) {
     return res.status(400).json({ message: "Missing userId in request" });
