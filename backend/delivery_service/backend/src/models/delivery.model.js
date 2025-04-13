@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const deliverySchema = new mongoose.Schema({
-    userId: {
+    customerId: {
         type: String,
         required: true
     },
