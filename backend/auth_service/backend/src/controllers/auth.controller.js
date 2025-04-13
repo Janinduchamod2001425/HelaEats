@@ -28,7 +28,7 @@ export const signUp = async (req, res) => {
         const existingUser = await Auth.findOne({email});
 
         if (existingUser) {
-            return res.status(400).json({message: "Customer already exists"});
+            return res.status(400).json({message: "User already exists"});
         }
 
         // Role handling
@@ -86,7 +86,7 @@ const getRequiredFields = (role) => {
     const fieldMap = {
         customer: ["contact", "address"],
         restaurant_admin: ["restaurantId", "contact"],
-        delivery_personnel: ["vehicleNumber", "contact"],
+        delivery_personnel: ["vehicleNumber", "contact", "status", "location"],
         system_admin: ["contact"]
     };
     return fieldMap[role] || [];
