@@ -1,5 +1,5 @@
 import Delivery from "../models/delivery.model.js";
-import {getAvailableDrivers, updateDriverStatus} from "../utils/driver.service.js";
+import {getAvailableDrivers, updateDriverStatus} from "../services/driver.service.js";
 
 export const assignDelivery = async (req, res) => {
     const {orderId, restaurantId, pickupLocation, dropLocation} = req.body;
