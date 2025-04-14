@@ -88,7 +88,6 @@ export const assignDelivery = async (req, res) => {
     }
 };
 
-
 // Update the delivery status
 export const updateDeliveryStatus = async (req, res) => {
     const {deliveryId} = req.params;
