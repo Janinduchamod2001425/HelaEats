@@ -1,14 +1,55 @@
 import Delivery from "../models/delivery.model.js";
 import {getAvailableDrivers, updateDriverStatus} from "../services/driver.service.js";
+import {getOrderDetails} from "../services/order.service.js";
+
+// Helper function to calculate distance between two locations (Haversine formula)
+function calculateDistance(coord1, coord2) {
+    const [lon1, lat1] = coord1;
+    const [lon2, lat2] = coord2;
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in kilometers
+}
+
+function findNearestDriver(drivers, pickupLocation) {
+    if (!drivers.length || !pickupLocation?.coordinates) return null;
+
+    const pickupCoords = pickupLocation.coordinates;
+
+    // Calculate the distance for each driver and find the nearest one
+    const driversWithDistance = drivers.map(driver => {
+        if (!driver.location?.coordinates) return null;
+
+        const distance = calculateDistance(
+            pickupCoords,
+            driver.location.coordinates
+        );
+        return {...driver, distance};
+    }).filter(Boolean); // Remove any invalid drivers
+
+    if (!driversWithDistance.length) return null;
+
+    // Sort drivers by distance and return the nearest one
+    return driversWithDistance.sort((a, b) => a.distance - b.distance)[0];
+}
 
 export const assignDelivery = async (req, res) => {
-    const {orderId, restaurantId, pickupLocation, dropLocation} = req.body;
+    const {orderId} = req.body;
 
     try {
+        // Get order details from order service
+        const order = await getOrderDetails(orderId);
+
         // Get available drivers from auth service
         const availableDrivers = await getAvailableDrivers();
 
-        const nearestDriver = findNearestDriver(availableDrivers, pickupLocation);
+        const nearestDriver = findNearestDriver(availableDrivers, order.pickupLocation);
 
         if (!nearestDriver) {
             return res.status(404).json({message: "No available drivers found"});
@@ -16,12 +57,12 @@ export const assignDelivery = async (req, res) => {
 
         // Create a new delivery
         const newDelivery = new Delivery({
-            customerId: req.user._id,
+            customerId: order.customerId,
             orderId,
-            restaurantId,
+            restaurantId: order.restaurantId,
             deliveryPersonId: nearestDriver._id,
-            pickupLocation,
-            dropLocation,
+            pickupLocation: order.pickupLocation,
+            dropLocation: order.dropLocation,
             status: "assigned"
         });
 
@@ -29,14 +70,15 @@ export const assignDelivery = async (req, res) => {
         await newDelivery.save();
 
         // Update driver status to "on the delivery"
-        await updateDriverStatus(nearestDriver._id, "");
+        await updateDriverStatus(nearestDriver._id, "on_delivery");
 
         return res.status(201).json({
             message: "Delivery assigned successfully",
             delivery: newDelivery,
             assignedDriver: {
                 id: nearestDriver._id,
-                distance: nearestDriver.distance
+                name: nearestDriver.name,
+                distance: nearestDriver.distance.toFixed(2) + " km"
             }
         });
 
@@ -46,9 +88,6 @@ export const assignDelivery = async (req, res) => {
     }
 };
 
-function findNearestDriver(drivers, pickupLocation) {
-
-}
 
 // Update the delivery status
 export const updateDeliveryStatus = async (req, res) => {
