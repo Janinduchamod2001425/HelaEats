@@ -8,6 +8,7 @@ import {connectDB} from "./lib/db.js";
 
 // Import Routes
 import {errorHandler} from "./middleware/error.middleware.js";
+import deliveryRoutes from './routes/delivery.route.js'
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.urlencoded({extended: true})); // Middleware to parse URL-encode
 app.use(errorHandler); // Apply global error handler
 
 // Routes
+app.use('/api/deliveries', deliveryRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
