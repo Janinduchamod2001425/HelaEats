@@ -1,6 +1,7 @@
 import Delivery from "../models/delivery.model.js";
 import {getAvailableDrivers, updateDriverStatus} from "../services/driver.service.js";
 import {getOrderDetails} from "../services/order.service.js";
+import {broadcastUpdate} from "../services/socket.service.js";
 
 // Helper function to calculate distance between two locations (Haversine formula)
 function calculateDistance(coord1, coord2) {
@@ -17,6 +18,7 @@ function calculateDistance(coord1, coord2) {
     return R * c; // Distance in kilometers
 }
 
+// Find the nearest driver to the pickup location
 function findNearestDriver(drivers, pickupLocation) {
     if (!drivers.length || !pickupLocation?.coordinates) return null;
 
@@ -39,6 +41,7 @@ function findNearestDriver(drivers, pickupLocation) {
     return driversWithDistance.sort((a, b) => a.distance - b.distance)[0];
 }
 
+// Assign a delivery to a driver
 export const assignDelivery = async (req, res) => {
     const {orderId} = req.body;
 
@@ -49,8 +52,10 @@ export const assignDelivery = async (req, res) => {
         // Get available drivers from auth service
         const availableDrivers = await getAvailableDrivers();
 
+        // Get the nearest driver to the pickup location
         const nearestDriver = findNearestDriver(availableDrivers, order.pickupLocation);
 
+        // Check if a driver is available
         if (!nearestDriver) {
             return res.status(404).json({message: "No available drivers found"});
         }
@@ -58,12 +63,17 @@ export const assignDelivery = async (req, res) => {
         // Create a new delivery
         const newDelivery = new Delivery({
             customerId: order.customerId,
-            orderId,
+            orderId: order._id,
             restaurantId: order.restaurantId,
             deliveryPersonId: nearestDriver._id,
             pickupLocation: order.pickupLocation,
             dropLocation: order.dropLocation,
-            status: "assigned"
+            status: "assigned",
+            estimatedTimes: {
+                preparation: 15, // Default values (minutes)
+                transit: 25,
+                delivery: 10
+            }
         });
 
         // Save the delivery to the database
@@ -71,6 +81,17 @@ export const assignDelivery = async (req, res) => {
 
         // Update driver status to "on the delivery"
         await updateDriverStatus(nearestDriver._id, "on_delivery");
+
+        // Broadcast the delivery assignment to the driver
+        broadcastUpdate(orderId, {
+            status: "assigned",
+            progress: newDelivery.progress,
+            driver: {
+                name: nearestDriver.name,
+                contact: nearestDriver.contact
+            },
+            estimatedDelivery: calculateETA(newDelivery)
+        });
 
         return res.status(201).json({
             message: "Delivery assigned successfully",
@@ -96,13 +117,24 @@ export const updateDeliveryStatus = async (req, res) => {
     try {
         const delivery = await Delivery.findOneAndUpdate(
             {_id: deliveryId, deliveryPersonId: req.user._id},
-            {status},
+            {
+                status, $push: {checkpoints: {phase: status}},
+                lastUpdated: new Date()
+            },
             {new: true}
         );
 
         if (!delivery) {
             return res.status(404).json({message: "Delivery not found or unauthorized"});
         }
+
+        // Broadcast update to customer
+        broadcastUpdate(delivery.orderId, {
+            status,
+            progress: delivery.progress,
+            lastCheckpoint: delivery.checkpoints.slice(-1)[0],
+            estimatedDelivery: calculateETA(delivery)
+        });
 
         // Notify Auth service when delivery is completed
         if (status === "delivered" || status === "cancelled") {
@@ -116,3 +148,75 @@ export const updateDeliveryStatus = async (req, res) => {
     }
 };
 
+// Helper function to calculate estimated time of arrival (ETA)
+function calculateETA(delivery) {
+    const remainingPhases = {
+        preparing: delivery.estimatedTimes.preparation,
+        assigned: 5, // Short time to accept
+        accepted: delivery.estimatedTimes.transit,
+        on_the_way: delivery.estimatedTimes.transit * 0.6,
+        nearby: delivery.estimatedTimes.delivery
+    };
+    return new Date(Date.now() + remainingPhases[delivery.status] * 60000);
+}
+
+// Get delivery status (for customer)
+export const getDeliveryStatus = async (req, res) => {
+    try {
+        const delivery = await Delivery.findOne({
+            _id: req.params.deliveryId,
+            $or: [
+                {customerId: req.user._id},
+                {deliveryPersonId: req.user._id}
+            ]
+        }).select('-__v');
+
+        if (!delivery) {
+            return res.status(404).json({message: "Delivery not found"});
+        }
+
+        res.json({
+            status: delivery.status,
+            progress: delivery.progress,
+            estimatedDelivery: calculateETA(delivery),
+            driver: delivery.deliveryPersonId ? await getDriverDetails(delivery.deliveryPersonId) : null,
+            checkpoints: delivery.checkpoints
+        });
+    } catch (error) {
+        console.error("Error fetching delivery status:", error);
+        res.status(500).json({message: "Failed to fetch delivery status"});
+    }
+};
+
+// Cancel delivery
+export const cancelDelivery = async (req, res) => {
+    try {
+        const delivery = await Delivery.findOneAndUpdate(
+            {
+                _id: req.params.deliveryId,
+                customerId: req.user._id,
+                status: {$nin: ["delivered", "cancelled"]}
+            },
+            {status: "cancelled"},
+            {new: true}
+        );
+
+        if (!delivery) {
+            return res.status(404).json({message: "Delivery not found or already cancelled"});
+        }
+
+        // Notify the driver
+        broadcastUpdate(delivery.orderId, {
+            status: "cancelled",
+            progress: 100
+        });
+
+        if (delivery.deliveryPersonId) {
+            await updateDriverStatus(delivery.deliveryPersonId, "available");
+        }
+
+        res.json({message: "Delivery cancelled successfully"});
+    } catch (error) {
+
+    }
+}
