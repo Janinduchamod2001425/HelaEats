@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import http from "http"
+import {initWebSocket} from "./services/socket.service.js";
 
 // Database connection
 import {connectDB} from "./lib/db.js";
@@ -12,6 +14,7 @@ import deliveryRoutes from './routes/delivery.route.js'
 
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5002;
 
 // Connect to the database before start the server
@@ -26,9 +29,13 @@ app.use(express.json()); // Middleware to parse JSON
 app.use(express.urlencoded({extended: true})); // Middleware to parse URL-encoded data
 app.use(errorHandler); // Apply global error handler
 
+// Initialize WebSocket server
+initWebSocket(server);
+
 // Routes
 app.use('/api/deliveries', deliveryRoutes);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔌 WebSocket server ready`);
 })
