@@ -33,7 +33,7 @@ app.use(errorHandler); // Apply global error handler
 initWebSocket(server);
 
 // Routes
-app.use('/api/deliveries', deliveryRoutes);
+app.use('/api/delivery', deliveryRoutes);
 
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
