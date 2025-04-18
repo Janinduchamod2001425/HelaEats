@@ -7,8 +7,8 @@ import {Loader} from "lucide-react";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
-import {LottiePlayer} from "lottie-react";
-import loaderAnimation from "./assets/burger.json";
+import Lottie from "lottie-react";
+import burgerAnimation from "./assets/burger.json";
 
 function App() {
 
@@ -27,11 +27,10 @@ function App() {
     if (isCheckingAuth && !authUser)
         return (
             <div className="flex items-center justify-center h-screen">
-                <LottiePlayer
-                    autoplay
-                    loop
-                    src={loaderAnimation}
-                    style={{height: "200px", width: "200px"}}
+                <Lottie
+                    animationData={burgerAnimation}
+                    loop={true}
+                    style={{width: "180px", height: "180px"}}
                 />
             </div>
         )
