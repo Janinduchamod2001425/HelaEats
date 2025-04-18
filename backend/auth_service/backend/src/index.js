@@ -21,7 +21,10 @@ connectDB().then(r => {
 });
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    credentials: true, // Allow cookies to be sent back and forth between client and server
+}));
 app.use(cookieParser());
 app.use(express.json()); // Middleware to parse JSON
 app.use(express.urlencoded({extended: true})); // Middleware to parse URL-encoded data
