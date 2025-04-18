@@ -1,5 +1,5 @@
 import {useAuthStore} from "./store/useAuthStore.js";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import Navbar from "./components/Navbar.jsx";
 import {Navigate, Route, Routes} from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
@@ -11,62 +11,59 @@ import Lottie from "lottie-react";
 import burgerAnimation from "./assets/burger.json";
 
 function App() {
-
     const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
+    const [isAppLoading, setIsAppLoading] = useState(true); // Splash screen state
 
+    // Initial mount effect
     useEffect(() => {
-        checkAuth().then(r =>
-            console.log("Auth check complete", r)
-        ).catch(e => {
-            console.error("Error checking auth", e);
-        })
+        // Splash animation: show for 1.8 s
+        const timer = setTimeout(() => {
+            setIsAppLoading(false);
+        }, 3000);
+
+        checkAuth()
+            .then(() => console.log("Auth check complete"))
+            .catch((e) => console.error("Error checking auth", e));
+
+        return () => clearTimeout(timer); // cleanup
     }, [checkAuth]);
 
-    console.log({authUser});
-
-    if (isCheckingAuth && !authUser)
+    // Lottie splash screen (shown only once when the app loads)
+    if (isAppLoading)
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex items-center justify-center h-screen bg-white">
                 <Lottie
                     animationData={burgerAnimation}
                     loop={true}
                     style={{width: "180px", height: "180px"}}
                 />
             </div>
-        )
+        );
+
+    // Auth loading (if still checking after splash ends)
+    if (isCheckingAuth && !authUser)
+        return (
+            <div className="flex items-center justify-center h-screen bg-white">
+                <Lottie
+                    animationData={burgerAnimation}
+                    loop={true}
+                    style={{width: "180px", height: "180px"}}
+                />
+            </div>
+        );
 
     return (
         <div>
             <Navbar/>
 
             <Routes>
-
-                {/*Home Page*/}
-                <Route
-                    path="/"
-                    element={authUser ? <HomePage/> : <Navigate to="/login"/>}
-                />
-
-                {/*Signup Page*/}
-                <Route
-                    path="/signup"
-                    element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}
-                />
-
-                {/*Login Page*/}
-                <Route
-                    path="/login"
-                    element={!authUser ? <LoginPage/> : <Navigate to="/"/>}
-                />
-
-                {/*Profile Page*/}
-                <Route
-                    path="/profile"
-                    element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}
-                />
+                <Route path="/" element={authUser ? <HomePage/> : <Navigate to="/login"/>}/>
+                <Route path="/signup" element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}/>
+                <Route path="/login" element={!authUser ? <LoginPage/> : <Navigate to="/"/>}/>
+                <Route path="/profile" element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
             </Routes>
         </div>
-    )
+    );
 }
 
-export default App
+export default App;
