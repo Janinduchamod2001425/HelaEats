@@ -212,3 +212,18 @@ export const getProfile = async (req, res) => {
         res.status(500).json({message: "Internal server error"}); // send error response
     }
 }
+
+// Controller for checking authentication
+export const checkAuth = async (req, res) => {
+    try {
+        // If a user is authenticated, send user data
+        if (req.user) {
+            return res.status(200).json(req.user);
+        } else {
+            return res.status(401).json({message: "Unauthorized"});
+        }
+    } catch (error) {
+        console.log("Error in checkAuth controller: ", error.message); // log errors
+        res.status(500).json({message: "Internal server error"}); // send error response
+    }
+}
