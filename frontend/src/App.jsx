@@ -16,6 +16,7 @@ import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProfilePage from "./pages/auth/ProfilePage.jsx";
 import IntroPage from "./pages/common/IntroPage.jsx";
 import CartPage from "./components/order/CartPage.jsx";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -27,7 +28,7 @@ function App() {
     // Splash animation: show for 1.8 s
     const timer = setTimeout(() => {
       setIsAppLoading(false);
-    }, 3000);
+    }, 2000);
 
     checkAuth()
       .then(() => console.log("Auth check complete"))
@@ -66,6 +67,8 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       {isPublicPath ? <PublicNavbar /> : <Navbar />}
+
+      <Toaster position="top-right" reverseOrder={false} />
 
       <main className="flex-grow">
         <Routes>

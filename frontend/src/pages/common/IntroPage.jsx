@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import heroImage from "/HelaEatsMask.svg"; // Update with your image path
+import heroImage from "/HelaEatsMask1.svg"; // Update with your image path
 import logoImage from "/CompanyLogo.svg"; // Update with your image path
 import { motion } from "framer-motion";
 
@@ -14,19 +14,19 @@ const rightSideVariants = {
 
 const IntroPage = () => {
   return (
-    <div className="h-screen overflow-hidden flex flex-col md:flex-row bg-white">
+    <div className="h-screen overflow-hidden flex flex-col md:flex-row bg-white pt-[60px]">
       {/* Left Side Image */}
       <div className="w-full md:w-1/2 h-64 md:h-full">
         <img
           src={heroImage}
           alt="Food delivery"
-          className="w-full h-full object-cover sm:mt-0 mt-10"
+          className="w-[680px] h-[] object-cover sm:mt-0 mt-30"
         />
       </div>
 
       {/* Right Side Content */}
       <motion.div
-        className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 py-10 text-center"
+        className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 py-10 text-center sm:mr-16"
         variants={rightSideVariants}
         initial="hidden"
         animate="visible"
@@ -43,7 +43,7 @@ const IntroPage = () => {
         <img
           src={logoImage}
           alt="Food delivery"
-          className="sm:w-[150px] sm:h-[150px] w-[100px] h-[100px] object-cover mb-8 sm:mt-0 mt-20"
+          className="sm:w-[150px] sm:h-[150px] w-[100px] h-[100px] object-cover mb-8 sm:mt-0 mt-28"
         />
 
         {/* Tagline */}
