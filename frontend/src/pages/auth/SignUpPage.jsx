@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import { ImSpinner8 } from "react-icons/im";
 
+import signupBG from "../../images/auth/signup1.svg";
+
 const SignUpPage = () => {
   const { signup, isSigningUp } = useAuthStore();
   const navigate = useNavigate();
@@ -28,56 +30,51 @@ const SignUpPage = () => {
         ...formData,
         role: "customer",
       };
-      await toast.promise(
-        signup(customerData),
-        {
-          loading: "Creating your account...",
-          success: () => {
-            navigate("/profile");
-            return "Account created successfully!";
-          },
-          error: (error) => error.response?.data?.message || "Signup failed",
-        },
-        {
-          style: {
-            minWidth: "250px",
-          },
-          success: {
-            duration: 3000,
-          },
-        },
-      );
+
+      // Show toast manually
+      toast.loading("Creating your account...");
+      await signup(customerData);
+      toast.dismiss(); // Dismiss loading
+      toast.success("Account created successfully!");
+
+      // Delay navigation so toast can show
+      setTimeout(() => {
+        navigate("/profile");
+      }, 5000);
     } catch (error) {
-      // Error already handled by toast.promise
+      toast.dismiss(); // Dismiss loading if error
+      toast.error(
+        error.response?.data?.message || "Signup failed. Please try again.",
+      );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex pt-[60px]">
+    <div className="min-h-screen bg-gray-50 flex pt-[60px] overflow-hidden">
       {/* Left Side - Banner Image */}
-      <div className="hidden lg:block w-1/2 relative">
+      <div className="hidden lg:block w-1/2">
         <img
-          src="/HelaEatsMask.svg"
+          src={signupBG}
           alt="Hela Eats Banner"
-          className="w-full h-full object-cover"
+          className="w-[635px] h-[635px]"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center p-12">
-          <div className="text-white text-center">
-            <h1 className="text-4xl font-bold mb-4">Welcome to Hela Eats</h1>
-            <p className="text-xl">
-              Discover the best food delivery experience in Sri Lanka
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
-        <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:ml-[-70px]">
+        <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg">
           {/* Header */}
-          <div className="bg-black text-white px-8 py-6">
-            <h1 className="text-2xl font-bold">Hela Eats</h1>
-            <div className="mt-2">
+          <div className="bg-black text-white px-8 py-4 rounded-xl shadow-xl">
+            <h1 className="text-4xl font-bold font-caveat flex items-center gap-2">
+              Hela Eats
+            </h1>
+            <h2 className="font-semibold hidden md:inline-block text-sm font-sans text-gray-300 mt-1">
+              Create an account -{" "}
+              <span className="text-yellow-100">
+                Sign up and get 10% off your first order
+              </span>
+            </h2>
+            <div className="mt-2 sm:hidden">
               <h2 className="text-xl font-semibold">Create an account</h2>
               <p className="text-gray-300 text-sm mt-1">
                 Sign up and get 10% off your first order
@@ -101,7 +98,7 @@ const SignUpPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border bg-amber-50 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
                     placeholder="Amélie Laurent"
                   />
                 </div>
@@ -117,14 +114,9 @@ const SignUpPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border text-black bg-amber-50 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
                     placeholder="amélielaurent@gmail.com"
                   />
-                  {formData.email && !/\S+@\S+\.\S+/.test(formData.email) && (
-                    <p className="text-xs text-red-500 mt-1">
-                      Please enter a valid email address.
-                    </p>
-                  )}
                 </div>
 
                 {/* Password */}
@@ -140,7 +132,7 @@ const SignUpPage = () => {
                       onChange={handleChange}
                       required
                       minLength={6}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all pr-12"
+                      className="w-full px-4 py-3 border bg-amber-50 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all pr-12"
                       placeholder="••••••••"
                     />
                     <button
@@ -155,21 +147,11 @@ const SignUpPage = () => {
                       )}
                     </button>
                   </div>
-                  {formData.password && formData.password.length < 6 && (
-                    <p className="text-xs text-red-500 mt-1">
-                      Password must be at least 6 characters.
-                    </p>
-                  )}
-                  {formData.password.length >= 6 && (
-                    <p className="text-xs text-green-600 mt-1">
-                      Strong password ✔
-                    </p>
-                  )}
                 </div>
 
                 {/* Contact */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Contact (Optional)
                   </label>
                   <input
@@ -206,7 +188,7 @@ const SignUpPage = () => {
                 <button
                   type="submit"
                   disabled={isSigningUp}
-                  className="w-full flex items-center justify-center gap-2 bg-black text-white px-6 py-4 rounded-lg hover:bg-gray-800 transition duration-200 font-medium disabled:opacity-70"
+                  className="w-full flex items-center justify-center gap-2 bg-black text-white px-6 py-4 rounded-lg hover:bg-zinc-600 transition-all duration-600 font-medium disabled:opacity-70"
                 >
                   {isSigningUp ? (
                     <>
@@ -222,13 +204,6 @@ const SignUpPage = () => {
                 </button>
               </div>
             </form>
-
-            {/* Divider */}
-            <div className="flex items-center my-6">
-              <div className="flex-grow border-t border-gray-200"></div>
-              <span className="mx-4 text-sm text-gray-500">OR</span>
-              <div className="flex-grow border-t border-gray-200"></div>
-            </div>
 
             {/* Footer */}
             <div className="mt-8 text-center text-sm text-gray-500">
