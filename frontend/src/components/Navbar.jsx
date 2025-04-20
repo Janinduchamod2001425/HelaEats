@@ -3,31 +3,33 @@ import { MapPin, Menu, Search, ShoppingCart, User } from "lucide-react";
 
 function Navbar() {
   const [isDelivery, setIsDelivery] = useState(true);
-  const [cartCount] = useState(0); // You can make this dynamic later
+  const [cartCount] = useState(0); // Make dynamic later
 
   return (
-    <div className="flex items-center justify-between px-6 py-3 shadow-md bg-white">
+    <div className="w-full px-4 md:px-6 py-3 shadow-md bg-white flex flex-wrap items-center justify-between fixed">
       {/* Left: Menu + Logo + Toggle */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 w-full sm:w-auto mb-3 sm:mb-0">
         <Menu className="w-6 h-6 cursor-pointer" />
 
-        <h1 className="text-xl font-bold tracking-tight">
-          <span className="font-bold">Hela</span>{" "}
-          <span className="font-extrabold">Eats</span>
-        </h1>
+        <div className="flex items-center space-x-2">
+          <h1 className="text-lg md:text-xl font-bold tracking-tight">
+            <span className="font-bold">Hela</span>{" "}
+            <span className="font-extrabold">Eats</span>
+          </h1>
+        </div>
 
-        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-5">
+        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[130px] sm:ml-5">
           <button
-            className={`px-4 py-1 ${
-              isDelivery ? "bg-black text-lime-300" : "bg-white text-black"
+            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out ${
+              isDelivery ? "bg-black text-yellow-300" : "bg-white text-black"
             }`}
             onClick={() => setIsDelivery(true)}
           >
             Delivery
           </button>
           <button
-            className={`px-4 py-1 ${
-              !isDelivery ? "bg-black text-white" : "bg-white text-black"
+            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out ${
+              !isDelivery ? "bg-black text-yellow-300" : "bg-white text-black"
             }`}
             onClick={() => setIsDelivery(false)}
           >
@@ -36,16 +38,16 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Middle: Location + Time + Search */}
-      <div className="flex items-center gap-3 flex-grow max-w-4xl mx-8">
-        <div className="flex items-center gap-1 text-sm text-gray-700 mr-4 space-x-1">
-          <MapPin className="w-6 h-6" />
-          <span>Kalegana, Galle</span>
+      {/* Middle: Location + Search */}
+      <div className="flex items-center gap-2 flex-grow max-w-full sm:max-w-2xl md:max-w-4xl mx-auto">
+        <div className="hidden sm:flex items-center text-sm text-gray-700 mr-2 whitespace-nowrap font-bold">
+          <MapPin className="w-5 h-5" />
+          <span className="ml-1">Kalegana, Galle</span>
           <span className="mx-1">·</span>
           <span>Now ▾</span>
         </div>
 
-        <div className="flex items-center flex-grow bg-gray-100 px-3 py-2 rounded-full">
+        <div className="w-full max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-2xl flex items-center bg-gray-100 px-3 py-2 rounded-full font-semibold">
           <Search className="w-4 h-4 text-gray-500 mr-2" />
           <input
             type="text"
@@ -56,19 +58,12 @@ function Navbar() {
       </div>
 
       {/* Right: Cart + Profile */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-5 mt-3 sm:mt-0">
         <div className="relative">
-          <ShoppingCart className="w-6 h-6" />
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-          {cartCount === 0 && (
-            <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              0
-            </span>
-          )}
+          <ShoppingCart className="w-6 h-6 cursor-pointer" />
+          <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+            {cartCount}
+          </span>
         </div>
         <User className="w-6 h-6 cursor-pointer" />
       </div>
