@@ -1,22 +1,24 @@
 import { useState } from "react";
 import { MapPin, Menu, Search, ShoppingCart, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [isDelivery, setIsDelivery] = useState(true);
   const [cartCount] = useState(0); // Make dynamic later
+  const navigate = useNavigate();
 
   return (
-    <div className="w-full px-4 md:px-6 py-3 shadow-md bg-white flex flex-wrap items-center justify-between fixed">
+    <div className="w-full px-4 md:px-6 py-3 shadow-md bg-white flex flex-wrap items-center justify-between fixed top-0 left-0 z-50">
       {/* Left: Menu + Logo + Toggle */}
       <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 w-full sm:w-auto mb-3 sm:mb-0">
         <Menu className="w-6 h-6 cursor-pointer" />
 
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <h1 className="text-lg md:text-xl font-bold tracking-tight">
             <span className="font-bold">Hela</span>{" "}
             <span className="font-extrabold">Eats</span>
           </h1>
-        </div>
+        </Link>
 
         <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[130px] sm:ml-5">
           <button
@@ -60,12 +62,18 @@ function Navbar() {
       {/* Right: Cart + Profile */}
       <div className="flex items-center gap-5 mt-3 sm:mt-0">
         <div className="relative">
-          <ShoppingCart className="w-6 h-6 cursor-pointer" />
+          <ShoppingCart
+            className="w-6 h-6 cursor-pointer"
+            onClick={() => navigate("/cart")}
+          />
           <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
             {cartCount}
           </span>
         </div>
-        <User className="w-6 h-6 cursor-pointer" />
+        <User
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => navigate("/profile")}
+        />
       </div>
     </div>
   );
