@@ -30,7 +30,7 @@ const LoginPage = () => {
       await login(formData);
       toast.dismiss();
       toast.success("Welcome back!");
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       toast.dismiss();
       toast.error(
@@ -79,7 +79,7 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 font-semibold"
                 placeholder="you@example.com"
               />
             </div>
@@ -97,7 +97,7 @@ const LoginPage = () => {
                   onChange={handleChange}
                   required
                   minLength={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 pr-12 font-semibold"
                   placeholder="••••••••"
                 />
                 <button

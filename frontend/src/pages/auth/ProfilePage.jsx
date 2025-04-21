@@ -64,7 +64,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Right-side form container */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:ml-[-70px]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:ml-[-70px] mt-14 sm:mt-0">
         <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg">
           {/* Header */}
           <div className="bg-black text-white px-8 py-4 rounded-xl shadow-xl flex justify-between items-center">
@@ -76,7 +76,7 @@ const ProfilePage = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="text-sm text-white bg-red-500 px-3 py-1.5 rounded-lg hover:bg-red-600 transition flex items-center gap-1"
+              className="text-sm text-white font-comfort bg-red-500 px-3 py-1.5 rounded-lg hover:bg-red-600 transition flex items-center gap-1"
             >
               <FiLogOut /> Logout
             </button>
@@ -95,7 +95,7 @@ const ProfilePage = () => {
                     type="text"
                     value={authUser.name}
                     readOnly
-                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed font-semibold"
                   />
                 </div>
                 <div>
@@ -106,7 +106,7 @@ const ProfilePage = () => {
                     type="email"
                     value={authUser.email}
                     readOnly
-                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed font-semibold"
                   />
                 </div>
                 <div>
@@ -117,7 +117,7 @@ const ProfilePage = () => {
                     type="text"
                     value={authUser.role.replace("_", " ")}
                     readOnly
-                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed capitalize"
+                    className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed capitalize font-semibold"
                   />
                 </div>
               </div>
@@ -143,7 +143,7 @@ const ProfilePage = () => {
                       type="text"
                       value={authUser.contact || "Not provided"}
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+                      className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed font-semibold"
                     />
                   )}
                 </div>
@@ -166,7 +166,7 @@ const ProfilePage = () => {
                     <textarea
                       value={authUser.address || "Not provided"}
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed"
+                      className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed font-semibold"
                     />
                   )}
                 </div>
