@@ -13,25 +13,27 @@ function Navbar() {
       <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 w-full sm:w-auto mb-3 sm:mb-0">
         <Menu className="w-6 h-6 cursor-pointer" />
 
+        {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
-          <h1 className="text-lg md:text-xl font-bold tracking-tight">
+          <h1 className="sm:text-lg md:text-xl text-md font-bold tracking-tight">
             <span className="font-bold">Hela</span>{" "}
             <span className="font-extrabold">Eats</span>
           </h1>
         </Link>
 
-        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[130px] sm:ml-5">
+        {/*Delivery or Pickup*/}
+        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[130px] sm:ml-5 p-1 bg-gray-100">
           <button
-            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out ${
-              isDelivery ? "bg-black text-yellow-300" : "bg-white text-black"
+            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out rounded-full ${
+              isDelivery ? "bg-black text-yellow-300" : "text-black"
             }`}
             onClick={() => setIsDelivery(true)}
           >
             Delivery
           </button>
           <button
-            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out ${
-              !isDelivery ? "bg-black text-yellow-300" : "bg-white text-black"
+            className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out rounded-full ${
+              !isDelivery ? "bg-black text-yellow-300" : " text-black"
             }`}
             onClick={() => setIsDelivery(false)}
           >
@@ -49,6 +51,7 @@ function Navbar() {
           <span>Now ▾</span>
         </div>
 
+        {/* Search Bar */}
         <div className="w-full max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-2xl flex items-center bg-gray-100 px-3 py-2 rounded-full font-semibold">
           <Search className="w-4 h-4 text-gray-500 mr-2" />
           <input
