@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import heroImage from "/HelaEatsMask1.svg"; // Update with your image path
-import logoImage from "/CompanyLogo.svg"; // Update with your image path
+import heroImage from "../../../public/logo/HelaEatsMask1.svg"; // Update with your image path
+import logoImage from "../../../public/logo/CompanyLogo.svg"; // Update with your image path
 import { motion } from "framer-motion";
 
 const rightSideVariants = {
