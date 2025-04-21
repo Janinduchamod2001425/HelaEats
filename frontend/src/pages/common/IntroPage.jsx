@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import heroImage from "/logo/HelaEatsMask1.svg"; // Update with your image path
-import logoImage from "/logo/CompanyLogo.svg"; // Update with your image path
+import heroImage from "/logo/HelaEatsMask1.svg";
+import logoImage from "/logo/CompanyLogo.svg";
 import { motion } from "framer-motion";
 
 const rightSideVariants = {
@@ -26,7 +26,7 @@ const IntroPage = () => {
 
       {/* Right Side Content */}
       <motion.div
-        className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 py-10 text-center sm:mr-16"
+        className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 py-10 text-center sm:mr-16 sm:mt-[5px] mt-16"
         variants={rightSideVariants}
         initial="hidden"
         animate="visible"
@@ -43,7 +43,7 @@ const IntroPage = () => {
         <img
           src={logoImage}
           alt="Food delivery"
-          className="sm:w-[150px] sm:h-[150px] w-[100px] h-[100px] object-cover mb-8 sm:mt-0 mt-28"
+          className="hidden lg:block sm:w-[110px] sm:h-[110px] w-[100px] h-[100px] object-cover mb-6 sm:mt-0 mt-28"
         />
 
         {/* Tagline */}
@@ -52,8 +52,8 @@ const IntroPage = () => {
         </span>
 
         {/* Title and Description */}
-        <h1 className="text-5xl font-bold mb-4 font-inter">
-          Welcome to Hela Eats!
+        <h1 className="text-5xl font-semibold mb-4 font-inter">
+          Welcome to Hela <span className="font-extrabold">Eats!</span>
         </h1>
         <p className="sm:text-3xl text-xl mb-6 max-w-md font-caveat">
           Explore, order, and enjoy delicious food <br /> delivered to your door
@@ -64,17 +64,49 @@ const IntroPage = () => {
         <div className="space-x-6 mt-2">
           <Link
             to="/login"
-            className="px-8 py-3 border-white bg-yellow-400 text-black rounded-xl font-semibold transition-all duration-300 transform border border-transparent hover:bg-white hover:border-black hover:text-black"
+            className="px-8 py-2 border-white bg-yellow-400 text-black rounded-3xl font-semibold transition-all duration-300 transform border border-transparent hover:bg-white hover:border-black hover:text-black"
           >
             Log In
           </Link>
 
           <Link
             to="/signup"
-            className="px-8 py-3 border border-white bg-black rounded-xl text-white hover:bg-white hover:border-black hover:text-black transform transition-all duration-300"
+            className="px-8 py-2 border border-white bg-black rounded-3xl text-white hover:bg-white hover:border-black hover:text-black transform transition-all duration-300"
           >
             Sign Up
           </Link>
+        </div>
+
+        {/* Divider Line */}
+        <div className="w-full max-w-md my-7 border-t border-gray-400"></div>
+
+        {/* Partner With Us Section */}
+        <div className="text-center z-10 w-full max-w-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 sm:mt-0 mt-3">
+            🚚🍕 Partner With Us
+          </h2>
+          <p className="text-sm text-gray-600 mb-4 font-comfort">
+            Join our fast-growing platform as a restaurant or a delivery partner
+            and grow your business with us!
+          </p>
+          <div className="flex sm:flex-row gap-4 justify-center sm:mt-0 mt-4">
+            <a
+              href="https://forms.gle/YOUR_RESTAURANT_FORM_LINK"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2  hover:bg-black hover:text-white transition ease-in duration-300"
+            >
+              Register Restaurant
+            </a>
+            <a
+              href="https://forms.gle/YOUR_DELIVERY_FORM_LINK"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2  hover:bg-black hover:text-white transition ease-in duration-300"
+            >
+              Delivery Partner
+            </a>
+          </div>
         </div>
       </motion.div>
     </div>
