@@ -2,6 +2,7 @@
   {
     "id": "resto1",
     "name": "Pizza Palace",
+    "location": "Matara",
     "items": [
       { "itemId": "item1", "name": "Margherita Pizza", "price": 1000 },
       { "itemId": "item2", "name": "Pepperoni Pizza", "price": 1200 }
@@ -10,6 +11,7 @@
   {
     "id": "resto2",
     "name": "Burger Hub",
+    "location": "Galle",
     "items": [{ "itemId": "item3", "name": "Cheeseburger", "price": 800 }]
   }
 ]
