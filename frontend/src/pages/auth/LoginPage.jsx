@@ -12,7 +12,7 @@ const LoginPage = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoggingIn } = useAuthStore();
+  const { login, isLoggingIn, authUser } = useAuthStore();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -27,10 +27,26 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       toast.loading("Logging you in...");
-      await login(formData);
+      const userData = await login(formData);
       toast.dismiss();
       toast.success("Welcome back!");
-      setTimeout(() => navigate("/"), 2000);
+
+      // Directly navigate based on the user's role after successful login
+      if (userData) {
+        switch (userData.role) {
+          case "customer":
+            navigate("/"); // Customer Home Page
+            break;
+          case "restaurant_admin":
+            navigate("/restaurantadmin/dashboard");
+            break;
+          case "delivery_personnel":
+            navigate("/deliverypersonnel/dashboard");
+            break;
+          default:
+            navigate("/"); // Fallback
+        }
+      }
     } catch (error) {
       toast.dismiss();
       toast.error(
