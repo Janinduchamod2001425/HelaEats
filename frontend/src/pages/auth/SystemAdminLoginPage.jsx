@@ -30,7 +30,7 @@ const SystemAdminLoginPage = () => {
       await login(formData);
       toast.dismiss();
       toast.success("Welcome back!");
-      setTimeout(() => navigate("/admin/dashboard"), 2000);
+      setTimeout(() => navigate("/systemadmin/dashboard"));
     } catch (error) {
       toast.dismiss();
       toast.error(
