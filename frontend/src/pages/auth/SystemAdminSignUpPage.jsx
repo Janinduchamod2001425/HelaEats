@@ -33,10 +33,6 @@ const SystemAdminSignUpPage = () => {
       await signupAdmin(dataToSubmit);
       toast.dismiss();
       toast.success("Account created successfully!");
-
-      setTimeout(() => {
-        navigate("/admin/dashboard");
-      }, 3000);
     } catch (error) {
       toast.dismiss();
       toast.error(error.message || "Signup failed. Please try again.");
