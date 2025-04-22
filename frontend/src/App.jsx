@@ -76,7 +76,7 @@ function App() {
     "/admin/intro",
     "/admin/login",
     "/admin/signup",
-    "/admin/dashboard",
+    "/systemadmin/dashboard",
     "/delivery/dashboard",
     "/restaurant/dashboard",
   ];
@@ -152,7 +152,7 @@ function App() {
             }
           />
           <Route
-            path="/admin/dashboard"
+            path="/systemadmin/dashboard"
             element={
               authUser?.role === "system_admin" ? (
                 <SystemAdminDashboardPage />
