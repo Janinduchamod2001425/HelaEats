@@ -8,7 +8,7 @@ import { ImSpinner8 } from "react-icons/im";
 import signupBG from "../../images/auth/signup1.svg";
 
 const SignUpPage = () => {
-  const { signup, isSigningUp } = useAuthStore();
+  const { signupCustomer, isSigningUp } = useAuthStore();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,7 +33,7 @@ const SignUpPage = () => {
 
       // Show toast manually
       toast.loading("Creating your account...");
-      await signup(customerData);
+      await signupCustomer(customerData);
       toast.dismiss(); // Dismiss loading
       toast.success("Account created successfully!");
 
