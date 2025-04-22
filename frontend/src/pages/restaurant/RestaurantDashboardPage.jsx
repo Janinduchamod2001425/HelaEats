@@ -1,6 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const RestaurantDashboardPage = () => {
+  const navigate = useNavigate();
+
+  const handleRegisterRestaurant = () => {
+    navigate("/register-restaurant"); // Update this path to match your route
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-white">
       {/* Modern header with the title */}
@@ -9,20 +16,45 @@ const RestaurantDashboardPage = () => {
           {/* Background decorative elements */}
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-10"></div>
 
-          {/* Main title - keeping your original font settings */}
-          <h1 className="relative font-caveat text-6xl font-bold text-gray-900 mb-6">
-            Restaurant Dashboard
-          </h1>
+          <div className="relative flex flex-col items-center">
+            {/* Main title - keeping your original font settings */}
+            <h1 className="font-caveat text-6xl font-bold text-gray-900 mb-6">
+              Restaurant Dashboard
+            </h1>
 
-          {/* Subtitle */}
-          <p className="relative max-w-xl mx-auto text-lg text-gray-600">
-            Manage your restaurant operations efficiently
-          </p>
+            {/* Subtitle */}
+            <p className="max-w-xl mx-auto text-lg text-gray-600 mb-8">
+              Manage your restaurant operations efficiently
+            </p>
+
+            {/* Register Restaurant Button */}
+            <button
+              onClick={handleRegisterRestaurant}
+              className="flex items-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg shadow-md transition-all hover:shadow-lg"
+            >
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Register New Restaurant
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Dashboard content grid */}
+      {/* Rest of your dashboard content remains the same */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        {/* Stats Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Stats Card 1 */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
