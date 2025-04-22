@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { MapPin, Menu, Search, ShoppingCart, User } from "lucide-react";
+import {
+  MapPin,
+  Menu,
+  Search,
+  ShoppingBag,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
@@ -22,7 +29,7 @@ function Navbar() {
         </Link>
 
         {/*Delivery or Pickup*/}
-        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[130px] sm:ml-5 p-1 bg-gray-100">
+        <div className="flex border rounded-full overflow-hidden text-sm font-medium ml-[255px] sm:ml-5 p-1 bg-gray-100">
           <button
             className={`px-3 py-1 sm:px-4 transition-all duration-300 ease-in-out rounded-full ${
               isDelivery ? "bg-black text-yellow-300" : "text-black"
@@ -44,11 +51,9 @@ function Navbar() {
 
       {/* Middle: Location + Search */}
       <div className="flex items-center gap-2 flex-grow max-w-full sm:max-w-2xl md:max-w-4xl mx-auto">
-        <div className="hidden sm:flex items-center text-sm text-gray-700 mr-2 whitespace-nowrap font-bold">
-          <MapPin className="w-5 h-5" />
-          <span className="ml-1">Kalegana, Galle</span>
-          <span className="mx-1">·</span>
-          <span>Now ▾</span>
+        <div className="hidden sm:flex items-center text-sm text-gray-700 sm:mr-10 sm:-ml-10 whitespace-nowrap font-bold">
+          <ShoppingBag className="w-5 h-5" />
+          <span className="ml-1">Order Your Favorite Food</span>
         </div>
 
         {/* Search Bar */}

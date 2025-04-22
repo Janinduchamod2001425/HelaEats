@@ -6,13 +6,13 @@ import { FiLogIn, FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import { ImSpinner8 } from "react-icons/im";
 import loginBG from "../../images/auth/login1.svg";
 
-const LoginPage = () => {
+const SystemAdminLoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoggingIn, authUser } = useAuthStore();
+  const { login, isLoggingIn } = useAuthStore();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,30 +23,14 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmitAdmin = async (e) => {
     e.preventDefault();
     try {
       toast.loading("Logging you in...");
-      const userData = await login(formData);
+      await login(formData);
       toast.dismiss();
       toast.success("Welcome back!");
-
-      // Directly navigate based on the user's role after successful login
-      if (userData) {
-        switch (userData.role) {
-          case "customer":
-            navigate("/"); // Customer Home Page
-            break;
-          case "restaurant_admin":
-            navigate("/restaurantadmin/dashboard");
-            break;
-          case "delivery_personnel":
-            navigate("/deliverypersonnel/dashboard");
-            break;
-          default:
-            navigate("/"); // Fallback
-        }
-      }
+      setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
       toast.dismiss();
       toast.error(
@@ -57,33 +41,28 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-yellow-50 flex pt-[60px] overflow-hidden">
-      {/* Left Image Side */}
-      <div className="hidden lg:block w-1/2">
-        <img src={loginBG} alt="Login Visual" className="w-[635px] h-[635px]" />
-      </div>
-
       {/* Right Form Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:ml-[-70px]">
+      <div className="w-full flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white rounded-xl shadow-lg">
           {/* Header */}
           <div className="bg-yellow-400 text-black px-8 py-4 rounded-t-xl shadow-xl">
             <h1 className="text-4xl font-bold font-caveat flex items-center gap-2">
-              Hela Eats
+              Hela Eats Admin
             </h1>
             <h2 className="font-semibold hidden md:inline-block text-sm font-sans text-gray-700 mt-1">
               Welcome back –{" "}
-              <span className="text-black">Login to continue</span>
+              <span className="text-black">Admin Login to continue</span>
             </h2>
             <div className="mt-2 sm:hidden">
-              <h2 className="text-xl font-semibold">Login to Hela Eats</h2>
+              <h2 className="text-xl font-semibold">Admin Portal Login</h2>
               <p className="text-sm text-gray-700">
-                Continue your delicious journey
+                Manage and oversee the platform
               </p>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
+          <form onSubmit={handleSubmitAdmin} className="px-8 py-6 space-y-6">
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -140,30 +119,17 @@ const LoginPage = () => {
                   </>
                 ) : (
                   <>
-                    <span>Login</span>
+                    <span>Login as Admin</span>
                     <FiArrowRight />
                   </>
                 )}
               </button>
             </div>
           </form>
-
-          {/* Footer */}
-          <div className="text-center text-sm text-gray-500 pb-6">
-            <p>
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-black font-medium hover:underline"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default SystemAdminLoginPage;

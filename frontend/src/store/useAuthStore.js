@@ -26,11 +26,30 @@ export const useAuthStore = create(
       }
     },
 
-    signup: async (data, isAdmin = false) => {
+    signupCustomer: async (data) => {
       set({ isSigningUp: true });
       try {
-        const endpoint = isAdmin ? "/admin/signup" : "/auth/signup";
-        const res = await axiosAuthInstance.post(endpoint, data);
+        const res = await axiosAuthInstance.post("/auth/signup", {
+          ...data,
+          role: "customer",
+        });
+        set({ authUser: res.data });
+        toast.success("Account created successfully");
+        return res.data;
+      } catch (error) {
+        toast.error(error.response.data.message);
+        throw error;
+      } finally {
+        set({ isSigningUp: false });
+      }
+    },
+
+    signupAdmin: async (data) => {
+      set({ isSigningUp: true });
+      try {
+        const res = await axiosAuthInstance.post("/auth/admin/signup", {
+          ...data,
+        });
         set({ authUser: res.data });
         toast.success("Account created successfully");
         return res.data;
@@ -48,6 +67,7 @@ export const useAuthStore = create(
         const res = await axiosAuthInstance.post("/auth/login", data);
         set({ authUser: res.data });
         toast.success("Logged in successfully");
+        return res.data;
       } catch (error) {
         toast.error(error.response.data.message);
       } finally {
