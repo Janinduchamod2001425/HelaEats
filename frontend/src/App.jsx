@@ -9,6 +9,9 @@ import PublicNavbar from "./components/common/PublicNavbar.jsx";
 import Lottie from "lottie-react";
 import burgerAnimation from "./assets/burger.json";
 
+// Toast
+import { Toaster } from "react-hot-toast";
+
 // Pages
 import HomePage from "./pages/common/HomePage.jsx";
 import SignUpPage from "./pages/auth/SignUpPage.jsx";
@@ -16,7 +19,13 @@ import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProfilePage from "./pages/auth/ProfilePage.jsx";
 import IntroPage from "./pages/common/IntroPage.jsx";
 import CartPage from "./components/order/CartPage.jsx";
-import { Toaster } from "react-hot-toast";
+import SystemAdminIntroPage from "./pages/common/SystemAdminIntroPage.jsx";
+import SystemAdminSignUpPage from "./pages/auth/SystemAdminSignUpPage.jsx";
+import SystemAdminLoginPage from "./pages/auth/SystemAdminLoginPage.jsx";
+import SystemAdminDashboardPage from "./pages/common/SystemAdminDashboardPage.jsx";
+import AdminNavbar from "./components/common/AdminNavbar.jsx";
+import DeliveryDashboardPage from "./pages/delivery/DeliveryDashboardPage.jsx";
+import RestaurantDashboardPage from "./pages/restaurant/RestaurantDashboardPage.jsx";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -62,20 +71,46 @@ function App() {
     );
 
   const publicPaths = ["/intro", "/signup", "/login"];
+
+  const adminPaths = [
+    "/admin/intro",
+    "/admin/login",
+    "/admin/signup",
+    "/admin/dashboard",
+    "/delivery/dashboard",
+    "/restaurant/dashboard",
+  ];
+
   const isPublicPath = publicPaths.includes(location.pathname) && !authUser;
+  const isAdminPath = adminPaths.includes(location.pathname);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {isPublicPath ? <PublicNavbar /> : <Navbar />}
+      {isAdminPath ? (
+        <AdminNavbar />
+      ) : isPublicPath ? (
+        <PublicNavbar />
+      ) : (
+        <Navbar />
+      )}
 
       <Toaster position="top-right" reverseOrder={false} />
 
       <main className="flex-grow">
         <Routes>
+          {/*Customer Routes*/}
           <Route path="/intro" element={<IntroPage />} />
           <Route
             path="/"
-            element={authUser ? <HomePage /> : <Navigate to="/intro" />}
+            element={
+              authUser?.role === "customer" ? (
+                <HomePage />
+              ) : authUser ? (
+                <Navigate to={`/${authUser.role.replace("_", "")}/dashboard`} />
+              ) : (
+                <Navigate to="/intro" />
+              )
+            }
           />
           <Route
             path="/signup"
@@ -92,6 +127,61 @@ function App() {
           <Route
             path="/cart"
             element={authUser ? <CartPage /> : <Navigate to="/login" />}
+          />
+
+          {/*System Admin Routes*/}
+          <Route path="/admin/intro" element={<SystemAdminIntroPage />} />
+          <Route
+            path="/admin/login"
+            element={
+              !authUser ? (
+                <SystemAdminLoginPage />
+              ) : (
+                <Navigate to="/admin/dashboard" />
+              )
+            }
+          />
+          <Route
+            path="/admin/signup"
+            element={
+              authUser ? (
+                <SystemAdminSignUpPage />
+              ) : (
+                <Navigate to="/admin/login" />
+              )
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              authUser?.role === "system_admin" ? (
+                <SystemAdminDashboardPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          {/*Delivery and Restaurant Admin Routes*/}
+          <Route
+            path="/deliverypersonnel/dashboard"
+            element={
+              authUser?.role === "delivery_personnel" ? (
+                <DeliveryDashboardPage />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/restaurantadmin/dashboard"
+            element={
+              authUser?.role === "restaurant_admin" ? (
+                <RestaurantDashboardPage />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
           />
         </Routes>
       </main>
