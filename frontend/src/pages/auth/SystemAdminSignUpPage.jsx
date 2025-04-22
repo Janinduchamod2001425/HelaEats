@@ -51,7 +51,7 @@ const SystemAdminSignUpPage = () => {
           <h2 className="text-sm text-gray-300 font-sans mt-1">
             Create an account –{" "}
             <span className="text-yellow-100">
-              Sign up and get 10% off your first order
+              Manage user data and system configurations efficiently
             </span>
           </h2>
         </div>
