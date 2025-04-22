@@ -3,6 +3,8 @@ import heroImage from "/logo/HelaEatsMask1.svg";
 import logoImage from "/logo/CompanyLogo.svg";
 import { motion } from "framer-motion";
 
+import { UtensilsCrossed, Bike } from "lucide-react";
+
 const rightSideVariants = {
   hidden: { opacity: 0, x: 50 },
   visible: {
@@ -43,7 +45,7 @@ const IntroPage = () => {
         <img
           src={logoImage}
           alt="Food delivery"
-          className="hidden lg:block sm:w-[110px] sm:h-[110px] w-[100px] h-[100px] object-cover mb-6 sm:mt-0 mt-28"
+          className="hidden lg:block sm:w-[110px] sm:h-[110px] w-[100px] h-[100px] object-cover mb-6 sm:mt-2 mt-28"
         />
 
         {/* Tagline */}
@@ -78,7 +80,7 @@ const IntroPage = () => {
         </div>
 
         {/* Divider Line */}
-        <div className="w-full max-w-md my-7 border-t border-gray-400"></div>
+        <div className="w-full max-w-md my-6 border-t border-gray-400"></div>
 
         {/* Partner With Us Section */}
         <div className="text-center z-10 w-full max-w-md">
@@ -91,22 +93,31 @@ const IntroPage = () => {
           </p>
           <div className="flex sm:flex-row gap-4 justify-center sm:mt-0 mt-4">
             <a
-              href="https://forms.gle/YOUR_RESTAURANT_FORM_LINK"
+              href="https://forms.gle/Fi9cCfkVNSdhHtok6"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2  hover:bg-black hover:text-white transition ease-in duration-300"
+              className="flex items-center gap-2 px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2 hover:bg-black hover:text-white transition ease-in duration-300"
             >
+              <UtensilsCrossed size={16} />
               Register Restaurant
             </a>
             <a
-              href="https://forms.gle/YOUR_DELIVERY_FORM_LINK"
+              href="https://forms.gle/TYqeu8t9mqci6PzH6"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2  hover:bg-black hover:text-white transition ease-in duration-300"
+              className="flex items-center gap-2 px-6 py-1 text-sm font-semibold rounded-xl bg-gray-200 text-black border-2 hover:bg-black hover:text-white transition ease-in duration-300"
             >
+              <Bike size={16} />
               Delivery Partner
             </a>
           </div>
+        </div>
+
+        {/* Hidden Admin Portal Link */}
+        <div className="text-xs text-gray-400 sm:mt-6 mt-3 hover:text-gray-600 transition z-10">
+          <Link to="/admin/intro" className="underline">
+            Admin Portal
+          </Link>
         </div>
       </motion.div>
     </div>
