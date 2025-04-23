@@ -79,3 +79,19 @@ export const getOrderStatus = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// ✅ GET full order by orderId (for payment service)
+export const getOrderById = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json(order); // return full order object
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
