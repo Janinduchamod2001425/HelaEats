@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 module.exports = {
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 5005,
   mongoose: {
     url: process.env.MONGODB_URL || 'mongodb+srv://duvidukavin:q1pFAjX1A1BcsbVT@food-system-restaurent.9ack8du.mongodb.net/?retryWrites=true&w=majority&appName=food-system-restaurent',
     options: {
