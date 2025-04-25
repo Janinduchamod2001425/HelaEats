@@ -332,13 +332,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const initiatePayment = async (req, res) => {
   const { orderId } = req.body;
+  const token = req.cookies.jwt;
 
   try {
-    // Fetch order details
-    const { data: order } = await axios.get(
-      `${process.env.ORDER_SERVICE_URL}/${orderId}`
-    );
+    if (!token) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
 
+    // Fetch order details with authentication
+    const { data: order } = await axios.get(
+      `${process.env.ORDER_SERVICE_URL}/${orderId}`,
+      {
+        headers: {
+          Cookie: `jwt=${token}`,
+        },
+        withCredentials: true,
+      }
+    );
     if (!order || order.status === "paid") {
       return res.status(400).json({ message: "Invalid or already paid order" });
     }
@@ -370,8 +380,8 @@ export const initiatePayment = async (req, res) => {
     // Save payment record
     const payment = new Payment({
       orderId: order.orderId,
-      userId: order.userId,
-      amount: amount,
+      userId: req.user._id,
+      amount: order.totalAmount,
       stripeSessionId: session.id,
       paymentId: `temp_${session.id}`,
       paymentMethod: "stripe",

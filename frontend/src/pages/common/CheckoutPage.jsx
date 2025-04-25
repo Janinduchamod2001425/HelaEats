@@ -70,6 +70,7 @@
 
 import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
+import { axiosOrderInstance, axiosPaymentInstance } from "../../lib/axios";
 import axios from "axios";
 import { useState } from "react";
 
@@ -85,7 +86,6 @@ export default function CheckoutPage() {
   const confirmOrderAndPay = async () => {
     try {
       setIsProcessing(true);
-      const userId = "user123";
 
       // Calculate total before payment
       const cartTotal = cart.reduce(
@@ -96,34 +96,32 @@ export default function CheckoutPage() {
 
       // Push cart to backend
       for (let item of cart) {
-        await axios.post(
-          `http://localhost:5003/api/cart/${item.restaurantId}/items`,
-          {
-            userId,
-            itemId: item.itemId,
-            quantity: item.quantity,
-            price: item.price, // Add price to ensure consistency
-          }
-        );
+        await axiosOrderInstance.post(`/api/cart/${item.restaurantId}/items`, {
+          itemId: item.itemId,
+          quantity: item.quantity,
+          price: item.price,
+        });
       }
 
       // Confirm order
-      const confirmRes = await axios.post(
-        "http://localhost:5003/api/order/confirm",
-        { userId }
-      );
+      const confirmRes = await axiosOrderInstance.post("/api/order/confirm");
 
       const orderId = confirmRes.data.order.orderId;
 
-      // Initialize payment with amount verification
-      const payRes = await axios.post("http://localhost:5004/api/payment/pay", {
+      // Initialize payment
+      const payRes = await axiosPaymentInstance.post("/api/payment/pay", {
         orderId,
-        amount: cartTotal, // Send cart total for verification
+        withCredentials: true,
+        amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
       });
 
       // Remove strict amount verification since Stripe handles cents differently
-      clearCart();
-      window.location.href = payRes.data.url;
+      if (payRes.data.url) {
+        clearCart();
+        window.location.href = payRes.data.url;
+      } else {
+        throw new Error("No payment URL received");
+      }
     } catch (err) {
       console.error("Payment Error:", err);
       alert(err.response?.data?.message || "Something went wrong");
