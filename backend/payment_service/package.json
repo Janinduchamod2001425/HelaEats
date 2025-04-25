@@ -103,6 +103,7 @@
     "simple-update-notifier": "^2.0.0",
     "sparse-bitfield": "^3.0.3",
     "statuses": "^2.0.1",
+    "stripe": "^18.0.0",
     "supports-color": "^5.5.0",
     "to-regex-range": "^5.0.1",
     "toidentifier": "^1.0.1",

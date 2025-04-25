@@ -1,11 +1,13 @@
 // controllers/orderController.js
 import Cart from "../models/cart.js";
 import Order from "../models/order.js";
+import { verifyToken } from "../middleware/auth.middleware.js";
 import { v4 as uuidv4 } from "uuid";
 
 // confirm the order
 export const confirmOrder = async (req, res) => {
-  const { userId } = req.body;
+  // const { userId } = req.body;
+  const userId = req.user._id; // Get userId from authenticated user
 
   try {
     const cart = await Cart.findOne({ userId });
@@ -41,7 +43,8 @@ export const confirmOrder = async (req, res) => {
 
 // get order history
 export const getOrderHistory = async (req, res) => {
-  const userId = req.query.userId || req.body.userId;
+  // const userId = req.query.userId || req.body.userId;
+  const userId = req.user._id; // Get userId from authenticated user
 
   if (!userId) {
     return res.status(400).json({ message: "Missing userId" });
@@ -75,6 +78,22 @@ export const getOrderStatus = async (req, res) => {
       status: order.status,
       createdAt: order.createdAt,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ✅ GET full order by orderId (for payment service)
+export const getOrderById = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json(order); // return full order object
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

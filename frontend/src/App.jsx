@@ -18,7 +18,7 @@ import SignUpPage from "./pages/auth/SignUpPage.jsx";
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import ProfilePage from "./pages/auth/ProfilePage.jsx";
 import IntroPage from "./pages/common/IntroPage.jsx";
-import CartPage from "./components/order/CartPage.jsx";
+// import CartPage from "./components/order/CartPage.jsx";
 import SystemAdminIntroPage from "./pages/common/SystemAdminIntroPage.jsx";
 import SystemAdminSignUpPage from "./pages/auth/SystemAdminSignUpPage.jsx";
 import SystemAdminLoginPage from "./pages/auth/SystemAdminLoginPage.jsx";
@@ -26,6 +26,9 @@ import SystemAdminDashboardPage from "./pages/common/SystemAdminDashboardPage.js
 import AdminNavbar from "./components/common/AdminNavbar.jsx";
 import DeliveryDashboardPage from "./pages/delivery/DeliveryDashboardPage.jsx";
 import RestaurantDashboardPage from "./pages/restaurant/RestaurantDashboardPage.jsx";
+import CartPage from "./pages/common/CartPage.jsx";
+import CheckoutPage from "./pages/common/CheckoutPage.jsx";
+import PaymentSuccessPage from "./pages/common/PaymentSuccessPage.jsx";
 
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -127,6 +130,16 @@ function App() {
           <Route
             path="/cart"
             element={authUser ? <CartPage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/checkout"
+            element={authUser ? <CheckoutPage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/payment-success"
+            element={
+              authUser ? <PaymentSuccessPage /> : <Navigate to="/login" />
+            }
           />
 
           {/*System Admin Routes*/}
