@@ -21,12 +21,13 @@ import {
   checkPaymentStatus,
 } from "../controllers/paymentController.js";
 import Payment from "../models/Payment.js"; // Add this import
+import { verifyToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 // Payment routes
-router.post("/pay", initiatePayment);
-router.get("/check-status", checkPaymentStatus);
+router.post("/pay", verifyToken, initiatePayment);
+router.get("/check-status", verifyToken, checkPaymentStatus);
 
 // Get payment details
 router.get("/status/:orderId", async (req, res) => {

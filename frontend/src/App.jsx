@@ -30,27 +30,211 @@ import CartPage from "./pages/common/CartPage.jsx";
 import CheckoutPage from "./pages/common/CheckoutPage.jsx";
 import PaymentSuccessPage from "./pages/common/PaymentSuccessPage.jsx";
 
+// function App() {
+//   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+//   const [isAppLoading, setIsAppLoading] = useState(true); // Splash screen state
+//   const location = useLocation();
+
+// Initial mount effect
+//   useEffect(() => {
+//     // Splash animation: show for 1.8 s
+//     const timer = setTimeout(() => {
+//       setIsAppLoading(false);
+//     }, 2000);
+
+//     checkAuth()
+//       .then(() => console.log("Auth check complete"))
+//       .catch((e) => console.error("Error checking auth", e));
+
+//     return () => clearTimeout(timer); // cleanup
+//   }, [checkAuth]);
+
+//   // Lottie splash screen (shown only once when the app loads)
+//   if (isAppLoading)
+//     return (
+//       <div className="flex items-center justify-center h-screen bg-white">
+//         <Lottie
+//           animationData={burgerAnimation}
+//           loop={true}
+//           style={{ width: "180px", height: "180px" }}
+//         />
+//       </div>
+//     );
+
+//   // Auth loading (if still checking after splash ends)
+//   if (isCheckingAuth && !authUser)
+//     return (
+//       <div className="flex items-center justify-center h-screen bg-white">
+//         <Lottie
+//           animationData={burgerAnimation}
+//           loop={true}
+//           style={{ width: "180px", height: "180px" }}
+//         />
+//       </div>
+//     );
+
+//   const publicPaths = ["/intro", "/signup", "/login"];
+
+//   const adminPaths = [
+//     "/admin/intro",
+//     "/admin/login",
+//     "/admin/signup",
+//     "/systemadmin/dashboard",
+//     "/delivery/dashboard",
+//     "/restaurant/dashboard",
+//   ];
+
+//   const isPublicPath = publicPaths.includes(location.pathname) && !authUser;
+//   const isAdminPath = adminPaths.includes(location.pathname);
+
+//   return (
+//     <div className="min-h-screen flex flex-col">
+//       {isAdminPath ? (
+//         <AdminNavbar />
+//       ) : isPublicPath ? (
+//         <PublicNavbar />
+//       ) : (
+//         <Navbar />
+//       )}
+
+//       <Toaster position="top-right" reverseOrder={false} />
+
+//       <main className="flex-grow">
+//         <Routes>
+//           {/*Customer Routes*/}
+//           <Route path="/intro" element={<IntroPage />} />
+//           <Route
+//             path="/"
+//             element={
+//               authUser?.role === "customer" ? (
+//                 <HomePage />
+//               ) : authUser ? (
+//                 <Navigate to={`/${authUser.role.replace("_", "")}/dashboard`} />
+//               ) : (
+//                 <Navigate to="/intro" />
+//               )
+//             }
+//           />
+//           <Route
+//             path="/signup"
+//             element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
+//           />
+//           <Route
+//             path="/login"
+//             element={!authUser ? <LoginPage /> : <Navigate to="/" />}
+//           />
+//           <Route
+//             path="/profile"
+//             element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
+//           />
+//           <Route
+//             path="/cart"
+//             element={authUser ? <CartPage /> : <Navigate to="/login" />}
+//           />
+//           <Route
+//             path="/checkout"
+//             element={authUser ? <CheckoutPage /> : <Navigate to="/login" />}
+//           />
+//           <Route
+//             path="/payment-success"
+//             element={
+//               authUser ? <PaymentSuccessPage /> : <Navigate to="/login" />
+//             }
+//           />
+
+//           {/*System Admin Routes*/}
+//           <Route path="/admin/intro" element={<SystemAdminIntroPage />} />
+//           <Route
+//             path="/admin/login"
+//             element={
+//               !authUser ? (
+//                 <SystemAdminLoginPage />
+//               ) : (
+//                 <Navigate to="/admin/dashboard" />
+//               )
+//             }
+//           />
+//           <Route
+//             path="/admin/signup"
+//             element={
+//               authUser ? (
+//                 <SystemAdminSignUpPage />
+//               ) : (
+//                 <Navigate to="/admin/login" />
+//               )
+//             }
+//           />
+//           <Route
+//             path="/systemadmin/dashboard"
+//             element={
+//               authUser?.role === "system_admin" ? (
+//                 <SystemAdminDashboardPage />
+//               ) : (
+//                 <Navigate to="/" />
+//               )
+//             }
+//           />
+
+//           {/*Delivery and Restaurant Admin Routes*/}
+//           <Route
+//             path="/deliverypersonnel/dashboard"
+//             element={
+//               authUser?.role === "delivery_personnel" ? (
+//                 <DeliveryDashboardPage />
+//               ) : (
+//                 <Navigate to="/login" />
+//               )
+//             }
+//           />
+//           <Route
+//             path="/restaurantadmin/dashboard"
+//             element={
+//               authUser?.role === "restaurant_admin" ? (
+//                 <RestaurantDashboardPage />
+//               ) : (
+//                 <Navigate to="/login" />
+//               )
+//             }
+//           />
+//         </Routes>
+//       </main>
+//     </div>
+//   );
+// }
+
+// export default App;
+
 function App() {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-  const [isAppLoading, setIsAppLoading] = useState(true); // Splash screen state
+  const [isAppLoading, setIsAppLoading] = useState(true);
   const location = useLocation();
 
-  // Initial mount effect
   useEffect(() => {
-    // Splash animation: show for 1.8 s
-    const timer = setTimeout(() => {
-      setIsAppLoading(false);
-    }, 2000);
+    let isMounted = true;
 
-    checkAuth()
-      .then(() => console.log("Auth check complete"))
-      .catch((e) => console.error("Error checking auth", e));
+    const initializeApp = async () => {
+      try {
+        await checkAuth();
+        console.log("Auth check complete");
+      } catch (error) {
+        console.error("Error checking auth:", error);
+      } finally {
+        if (isMounted) {
+          // Delay splash screen for animation
+          setTimeout(() => setIsAppLoading(false), 2000);
+        }
+      }
+    };
 
-    return () => clearTimeout(timer); // cleanup
-  }, [checkAuth]);
+    initializeApp();
 
-  // Lottie splash screen (shown only once when the app loads)
-  if (isAppLoading)
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Show splash screen during initial load
+  if (isAppLoading || (isCheckingAuth && !authUser)) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">
         <Lottie
@@ -60,21 +244,9 @@ function App() {
         />
       </div>
     );
-
-  // Auth loading (if still checking after splash ends)
-  if (isCheckingAuth && !authUser)
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <Lottie
-          animationData={burgerAnimation}
-          loop={true}
-          style={{ width: "180px", height: "180px" }}
-        />
-      </div>
-    );
+  }
 
   const publicPaths = ["/intro", "/signup", "/login"];
-
   const adminPaths = [
     "/admin/intro",
     "/admin/login",
@@ -101,7 +273,7 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
-          {/*Customer Routes*/}
+          {/* Public Routes */}
           <Route path="/intro" element={<IntroPage />} />
           <Route
             path="/"
@@ -115,6 +287,8 @@ function App() {
               )
             }
           />
+
+          {/* Auth Routes */}
           <Route
             path="/signup"
             element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
@@ -123,6 +297,8 @@ function App() {
             path="/login"
             element={!authUser ? <LoginPage /> : <Navigate to="/" />}
           />
+
+          {/* Protected Customer Routes */}
           <Route
             path="/profile"
             element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
@@ -142,7 +318,7 @@ function App() {
             }
           />
 
-          {/*System Admin Routes*/}
+          {/* Admin Routes */}
           <Route path="/admin/intro" element={<SystemAdminIntroPage />} />
           <Route
             path="/admin/login"
@@ -164,6 +340,8 @@ function App() {
               )
             }
           />
+
+          {/* Role-Based Dashboard Routes */}
           <Route
             path="/systemadmin/dashboard"
             element={
@@ -174,8 +352,6 @@ function App() {
               )
             }
           />
-
-          {/*Delivery and Restaurant Admin Routes*/}
           <Route
             path="/deliverypersonnel/dashboard"
             element={

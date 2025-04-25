@@ -46,7 +46,7 @@ export const signUp = async (req, res) => {
       }
       if (
         !["restaurant_admin", "delivery_personnel", "system_admin"].includes(
-          role,
+          role
         )
       ) {
         return res
@@ -90,12 +90,13 @@ export const signUp = async (req, res) => {
 
     // Response
     res.status(201).json({
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      isProfileComplete: newUser.isProfileComplete,
-      requiredFields: getRequiredFields(newUser.role),
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        isProfileComplete: newUser.isProfileComplete,
+      },
     });
   } catch (error) {
     console.log("Error in signup controller:", error.message); // log errors
@@ -115,47 +116,93 @@ const getRequiredFields = (role) => {
 };
 
 // Controller for user login
+// export const login = async (req, res) => {
+//   // Destructure the email and password from the request body
+//   const { email, password } = req.body;
+
+//   try {
+//     // Check if email log in users
+//     const user = await Auth.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: "Invalid credentials" }); // send error response
+//     }
+
+//     // Check if the password is correct
+//     const checkPassword = await bcrypt.compare(password, user.password); // Compare the password
+
+//     if (!checkPassword) {
+//       return res.status(400).json({ message: "Password Incorrect" }); // send error response
+//     }
+
+//     generateToken(user._id, res); // Generate JWT token
+
+//     res.status(200).json({
+//       _id: user._id,
+//       name: user.name,
+//       email: user.email,
+//       role: user.role,
+//     });
+//   } catch (error) {
+//     console.log("Error in Login controller", error.message); // log errors
+//     res.status(500).json({ message: "Internal server error" }); // send error response
+//   }
+// };
+
+//login sachintha
 export const login = async (req, res) => {
-  // Destructure the email and password from the request body
   const { email, password } = req.body;
 
   try {
-    // Check if email log in users
     const user = await Auth.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" }); // send error response
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Check if the password is correct
-    const checkPassword = await bcrypt.compare(password, user.password); // Compare the password
+    // Generate token and set cookie
+    generateToken(user._id, res);
 
-    if (!checkPassword) {
-      return res.status(400).json({ message: "Password Incorrect" }); // send error response
-    }
-
-    generateToken(user._id, res); // Generate JWT token
-
+    // Return user data without sensitive information
     res.status(200).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isProfileComplete: user.isProfileComplete,
+      },
     });
   } catch (error) {
-    console.log("Error in Login controller", error.message); // log errors
-    res.status(500).json({ message: "Internal server error" }); // send error response
+    console.error("Error in Login controller:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 // Controller for user logout
+// export const logout = async (req, res) => {
+//   try {
+//     res.cookie("jwt", "", { maxAge: 0 });
+//     res.status(200).json({ message: "Logged out successfully" });
+//   } catch (error) {
+//     console.log("Error in Logout controller", error.message); // log errors
+//     res.status(500).json({ message: "Internal server error" }); // send error response
+//   }
+// };
+
+// logout sachintha
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("jwt", "", {
+      httpOnly: true,
+      expires: new Date(0),
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in Logout controller", error.message); // log errors
-    res.status(500).json({ message: "Internal server error" }); // send error response
+    console.error("Error in Logout controller:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -189,7 +236,7 @@ export const completeProfile = async (req, res) => {
         ...updateData,
         isProfileComplete: true, // Mark profile as complete
       },
-      { new: true }, // Return the updated user
+      { new: true } // Return the updated user
     );
 
     res.status(200).json({
@@ -244,16 +291,43 @@ export const getProfile = async (req, res) => {
 };
 
 // Controller for checking authentication
+// export const checkAuth = async (req, res) => {
+//   try {
+//     // If a user is authenticated, send user data
+//     if (req.user) {
+//       return res.status(200).json(req.user);
+//     } else {
+//       return res.status(401).json({ message: "Unauthorized" });
+//     }
+//   } catch (error) {
+//     console.log("Error in checkAuth controller: ", error.message); // log errors
+//     res.status(500).json({ message: "Internal server error" }); // send error response
+//   }
+// };
+
+// check auth sachintha
 export const checkAuth = async (req, res) => {
   try {
-    // If a user is authenticated, send user data
-    if (req.user) {
-      return res.status(200).json(req.user);
-    } else {
+    if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    // Fetch fresh user data from database
+    const user = await Auth.findById(req.user._id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isProfileComplete: user.isProfileComplete,
+    });
   } catch (error) {
-    console.log("Error in checkAuth controller: ", error.message); // log errors
-    res.status(500).json({ message: "Internal server error" }); // send error response
+    console.error("Error in checkAuth controller:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

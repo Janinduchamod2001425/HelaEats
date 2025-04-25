@@ -4,30 +4,34 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Database connection
-import {connectDB} from "./lib/db.js";
+import { connectDB } from "./lib/db.js";
 
 // Import Routes
 import authRoutes from "./routes/auth.route.js";
 import driverRoutes from "./routes/driver.route.js";
-import {errorHandler} from "./middleware/error.middleware.js";
+import { errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Connect to the database before start the server
-connectDB().then(r => {
-    console.log("✅ Auth Database Connected!");
+connectDB().then((r) => {
+  console.log("✅ Auth Database Connected!");
 });
 
 // Middlewares
-app.use(cors({
+app.use(
+  cors({
     origin: "http://localhost:5173", // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent back and forth between client and server
-}));
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  })
+);
 app.use(cookieParser());
 app.use(express.json()); // Middleware to parse JSON
-app.use(express.urlencoded({extended: true})); // Middleware to parse URL-encoded data
+app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded data
 app.use(errorHandler); // Apply global error handler
 
 // Routes
@@ -36,5 +40,5 @@ app.use("/api/drivers", driverRoutes);
 
 // Start the server on the specified port
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-})
+  console.log(`🚀 Server running on port ${PORT}`);
+});

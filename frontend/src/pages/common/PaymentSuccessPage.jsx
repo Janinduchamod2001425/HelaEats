@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { axiosPaymentInstance } from "../../lib/axios";
 import axios from "axios";
 
 export default function PaymentSuccessPage() {
@@ -20,8 +21,8 @@ export default function PaymentSuccessPage() {
         }
 
         // Verify payment status
-        const response = await axios.get(
-          `http://localhost:5004/api/payment/check-status?sessionId=${sessionId}&orderId=${orderId}`
+        const response = await axiosPaymentInstance.get(
+          `/api/payment/check-status?sessionId=${sessionId}&orderId=${orderId}`
         );
 
         console.log("Payment verification response:", response.data); // Debug log
