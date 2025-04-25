@@ -1,11 +1,13 @@
 // controllers/orderController.js
 import Cart from "../models/cart.js";
 import Order from "../models/order.js";
+import { verifyToken } from "../middleware/auth.middleware.js";
 import { v4 as uuidv4 } from "uuid";
 
 // confirm the order
 export const confirmOrder = async (req, res) => {
-  const { userId } = req.body;
+  // const { userId } = req.body;
+  const userId = req.user._id; // Get userId from authenticated user
 
   try {
     const cart = await Cart.findOne({ userId });
@@ -41,7 +43,8 @@ export const confirmOrder = async (req, res) => {
 
 // get order history
 export const getOrderHistory = async (req, res) => {
-  const userId = req.query.userId || req.body.userId;
+  // const userId = req.query.userId || req.body.userId;
+  const userId = req.user._id; // Get userId from authenticated user
 
   if (!userId) {
     return res.status(400).json({ message: "Missing userId" });

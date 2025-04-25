@@ -62,8 +62,11 @@ const mockData = JSON.parse(
 // };
 
 export const addItem = async (req, res) => {
-  const { userId, itemId, quantity } = req.body;
+  // const { userId, itemId, quantity } = req.body;
+  // const { restaurantId } = req.params;
+  const { itemId, quantity } = req.body;
   const { restaurantId } = req.params;
+  const userId = req.user._id;
 
   try {
     // Find restaurant and item from mock data
@@ -145,8 +148,12 @@ export const addItem = async (req, res) => {
 
 // ✅ Update quantity of an item in basket
 export const updateItem = async (req, res) => {
-  const { userId, quantity } = req.body;
+  // const { userId, quantity } = req.body;
+  // const { restaurantId, itemId } = req.params;
+
+  const { quantity } = req.body;
   const { restaurantId, itemId } = req.params;
+  const userId = req.user._id; // get user id from authenticate
 
   try {
     const cart = await Cart.findOne({ userId });
@@ -168,8 +175,10 @@ export const updateItem = async (req, res) => {
 
 // ✅ Delete item from basket
 export const deleteItem = async (req, res) => {
-  const { userId } = req.body;
+  // const { userId } = req.body;
+  // const { restaurantId, itemId } = req.params;
   const { restaurantId, itemId } = req.params;
+  const userId = req.user._id; // get userId from authenticate user
 
   try {
     const cart = await Cart.findOne({ userId });
@@ -190,7 +199,8 @@ export const deleteItem = async (req, res) => {
 
 // ✅ Get full cart (read-only)
 export const getCart = async (req, res) => {
-  const userId = req.query.userId || req.body.userId || req.headers["user-id"];
+  // const userId = req.query.userId || req.body.userId || req.headers["user-id"];
+  const userId = req.user._id; // Get userId from authenticated user
 
   if (!userId) {
     return res.status(400).json({ message: "Missing userId in request" });
@@ -208,7 +218,8 @@ export const getCart = async (req, res) => {
 
 // ✅ Optional: Clear entire cart
 export const clearCart = async (req, res) => {
-  const { userId } = req.body;
+  // const { userId } = req.body;
+  const userId = req.user._id; // Get userId from authenticated user
 
   try {
     await Cart.deleteOne({ userId });
