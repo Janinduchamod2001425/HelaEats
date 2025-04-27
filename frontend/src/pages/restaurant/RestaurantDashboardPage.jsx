@@ -1,228 +1,350 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useRestaurantStore } from "../../store/useRestaurantStore";
+import toast from "react-hot-toast";
+import {
+  FiPlus,
+  FiEdit,
+  FiTrash2,
+  FiToggleLeft,
+  FiToggleRight,
+} from "react-icons/fi";
+import RestaurantForm from "../../components/restaurant/RestaurantForm";
+import MenuItemForm from "../../components/restaurant/MenuItemForm";
 
 const RestaurantDashboardPage = () => {
   const navigate = useNavigate();
+  const { authUser } = useAuthStore();
+  const {
+    restaurant,
+    menuItems,
+    loading,
+    fetchRestaurantByAdmin,
+    fetchMenuItems,
+    toggleMenuItemAvailability,
+    deleteMenuItem,
+  } = useRestaurantStore();
+  
+  const [filters, setFilters] = useState({
+    isAvailable: "",
+    category: "",
+  });
+  const [showMenuItemForm, setShowMenuItemForm] = useState(false);
+  const [showRestaurantForm, setShowRestaurantForm] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [togglingItemId, setTogglingItemId] = useState(null);
 
-  const handleRegisterRestaurant = () => {
-    navigate("/register-restaurant"); // Update this path to match your route
+  useEffect(() => {
+    if (authUser?.role === "restaurant_admin" && authUser?._id) {
+      fetchRestaurantByAdmin(authUser._id).finally(() => {
+        setInitialLoadComplete(true);
+      });
+    }
+  }, [authUser, fetchRestaurantByAdmin]);
+
+  useEffect(() => {
+    if (restaurant?._id) {
+      fetchMenuItems(restaurant._id);
+    }
+  }, [restaurant, fetchMenuItems]);
+
+  const handleToggleAvailability = async (menuItemId) => {
+    setTogglingItemId(menuItemId);
+    try {
+      await toggleMenuItemAvailability(menuItemId);
+    } catch (error) {
+      console.error("Toggle error:", error);
+    } finally {
+      setTogglingItemId(null);
+    }
   };
 
+  const handleDeleteMenuItem = async (menuItemId) => {
+    if (window.confirm("Are you sure you want to delete this menu item?")) {
+      try {
+        await deleteMenuItem(menuItemId);
+        toast.success("Menu item deleted successfully");
+      } catch (error) {
+        toast.error(error.message || "Failed to delete menu item");
+      }
+    }
+  };
+
+  const filteredMenuItems = menuItems
+    .filter((item) => {
+      if (filters.isAvailable === "") return true;
+      return item.isAvailable === (filters.isAvailable === "true");
+    })
+    .filter((item) => {
+      if (filters.category === "") return true;
+      return item.category === filters.category;
+    });
+
+  if (loading && !initialLoadComplete) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
+  }
+
+  if (!restaurant && initialLoadComplete) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold mb-4">Register Your Restaurant</h2>
+          <p className="mb-6">
+            As a restaurant admin, you need to register your restaurant first.
+          </p>
+          <RestaurantForm 
+            onClose={() => setShowRestaurantForm(false)} 
+            onSuccess={() => {
+              fetchRestaurantByAdmin(authUser._id);
+              setShowRestaurantForm(false);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!restaurant) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-white">
-      {/* Modern header with the title */}
-      <header className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8 text-center">
-          {/* Background decorative elements */}
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-10"></div>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      {/* Restaurant Form Modal */}
+      {showRestaurantForm && (
+        <RestaurantForm 
+          restaurant={restaurant}
+          onClose={() => setShowRestaurantForm(false)}
+          onSuccess={() => {
+            fetchRestaurantByAdmin(authUser._id);
+            setShowRestaurantForm(false);
+          }}
+        />
+      )}
 
-          <div className="relative flex flex-col items-center">
-            {/* Main title - keeping your original font settings */}
-            <h1 className="font-caveat text-6xl font-bold text-gray-900 mb-6">
-              Restaurant Dashboard
-            </h1>
+      {/* Menu Item Form Modal */}
+      {showMenuItemForm && (
+        <MenuItemForm 
+          restaurantId={restaurant._id} 
+          onClose={() => setShowMenuItemForm(false)}
+          onSuccess={() => {
+            fetchMenuItems(restaurant._id);
+            setShowMenuItemForm(false);
+          }}
+        />
+      )}
+      
+      <div className="max-w-6xl mx-auto">
+        {restaurant.imageUrl && (
+          <div className="mb-8 rounded-lg overflow-hidden shadow-md">
+            <img
+              src={restaurant.imageUrl}
+              alt={restaurant.name}
+              className="w-full h-64 md:h-80 object-cover"
+            />
+          </div>
+        )}
 
-            {/* Subtitle */}
-            <p className="max-w-xl mx-auto text-lg text-gray-600 mb-8">
-              Manage your restaurant operations efficiently
-            </p>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold mb-2">{restaurant.name}</h1>
+            <p className="text-gray-600 mb-4">{restaurant.description}</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-700">Location</h3>
+                <p className="text-gray-600">
+                  {restaurant.location?.address}, {restaurant.location?.city}
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-gray-700">Contact</h3>
+                <p className="text-gray-600">{restaurant.contact?.phone}</p>
+                {restaurant.contact?.email && (
+                  <p className="text-gray-600">{restaurant.contact.email}</p>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-gray-700">Cuisine Type</h3>
+                <p className="text-gray-600">{restaurant.cuisineType}</p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold text-gray-700">Status</h3>
+                <p className="text-gray-600">
+                  {restaurant.isActive ? 'Active' : 'Inactive'}
+                </p>
+              </div>
+              
+              <div className="md:col-span-2">
+                <button
+                  onClick={() => setShowRestaurantForm(true)}
+                  className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+                >
+                  <FiEdit /> Edit Restaurant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            {/* Register Restaurant Button */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Menu Items</h2>
             <button
-              onClick={handleRegisterRestaurant}
-              className="flex items-center px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg shadow-md transition-all hover:shadow-lg"
+              onClick={() => setShowMenuItemForm(true)}
+              className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              Register New Restaurant
+              <FiPlus /> Add Menu Item
             </button>
           </div>
-        </div>
-      </header>
 
-      {/* Rest of your dashboard content remains the same */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Stats Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Stats Card 1 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-amber-100 p-3 rounded-lg">
-                  <svg
-                    className="h-8 w-8 text-amber-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Today's Orders
-                  </dt>
-                  <dd className="flex items-baseline">
-                    <p className="text-2xl font-semibold text-gray-900">24</p>
-                    <p className="ml-2 text-sm font-medium text-green-500">
-                      +12%
-                    </p>
-                  </dd>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Card 2 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-100 p-3 rounded-lg">
-                  <svg
-                    className="h-8 w-8 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Today's Revenue
-                  </dt>
-                  <dd className="flex items-baseline">
-                    <p className="text-2xl font-semibold text-gray-900">
-                      $1,240
-                    </p>
-                    <p className="ml-2 text-sm font-medium text-green-500">
-                      +8%
-                    </p>
-                  </dd>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Card 3 */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-100 p-3 rounded-lg">
-                  <svg
-                    className="h-8 w-8 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Active Customers
-                  </dt>
-                  <dd className="flex items-baseline">
-                    <p className="text-2xl font-semibold text-gray-900">42</p>
-                    <p className="ml-2 text-sm font-medium text-green-500">
-                      +5%
-                    </p>
-                  </dd>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Orders Section */}
-        <div className="mt-12 bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              Recent Orders
-            </h3>
-          </div>
-          <div className="divide-y divide-gray-200">
-            {[1, 2, 3, 4, 5].map((order) => (
-              <div
-                key={order}
-                className="px-6 py-4 hover:bg-gray-50 transition-colors"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Availability
+              </label>
+              <select
+                value={filters.isAvailable}
+                onChange={(e) => setFilters({...filters, isAvailable: e.target.value})}
+                className="w-full p-2 border border-gray-300 rounded-md"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0 bg-amber-100 rounded-md p-2">
-                      <svg
-                        className="h-6 w-6 text-amber-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                <option value="">All</option>
+                <option value="true">Available</option>
+                <option value="false">Unavailable</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                value={filters.category}
+                onChange={(e) => setFilters({...filters, category: e.target.value})}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              >
+                <option value="">All</option>
+                <option value="Appetizer">Appetizer</option>
+                <option value="Main Course">Main Course</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Beverage">Beverage</option>
+                <option value="Side Dish">Side Dish</option>
+              </select>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+            </div>
+          ) : filteredMenuItems.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">
+              No menu items found matching your filters.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMenuItems.map((item) => (
+                <div
+                  key={item._id}
+                  className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition"
+                >
+                  {item.imageUrl && (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-4">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <span className="text-yellow-600 font-bold">
+                        LKR {item.price?.toFixed(2) || '0.00'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center mt-1 mb-2">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        item.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {item.isAvailable ? 'Available' : 'Unavailable'}
+                      </span>
+                      <span className="mx-2 text-gray-300">•</span>
+                      <span className="text-sm text-gray-500">
+                        {item.category}
+                      </span>
+                      <span className="mx-2 text-gray-300">•</span>
+                      <span className="text-sm text-gray-500">
+                        {item.preparationTime || 15} min
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {item.isVegetarian && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          Vegetarian
+                        </span>
+                      )}
+                      {item.isVegan && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          Vegan
+                        </span>
+                      )}
+                      {item.isGlutenFree && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          Gluten Free
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <button
+                        onClick={() => handleToggleAvailability(item._id)}
+                        disabled={loading && togglingItemId === item._id}
+                        className="flex items-center gap-1 text-sm disabled:opacity-50"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
+                        {item.isAvailable ? (
+                          <>
+                            <FiToggleRight className="text-green-500" />
+                            <span>Toggle</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiToggleLeft className="text-gray-400" />
+                            <span>Toggle</span>
+                          </>
+                        )}
+                        {loading && togglingItemId === item._id && (
+                          <span className="ml-1">...</span>
+                        )}
+                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => navigate(`/menu-items/${item._id}/edit`)}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <FiEdit />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMenuItem(item._id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Order #{1000 + order}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        3 items • $24.{order * 5}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order % 3 === 0 ? "bg-green-100 text-green-800" : order % 2 === 0 ? "bg-yellow-100 text-yellow-800" : "bg-blue-100 text-blue-800"}`}
-                    >
-                      {order % 3 === 0
-                        ? "Delivered"
-                        : order % 2 === 0
-                          ? "Preparing"
-                          : "On the way"}
-                    </span>
-                    <button className="text-amber-600 hover:text-amber-800 text-sm font-medium">
-                      View
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="px-6 py-4 bg-gray-50 text-right">
-            <button className="text-sm font-medium text-amber-600 hover:text-amber-800">
-              View all orders →
-            </button>
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -26,6 +26,9 @@ import SystemAdminDashboardPage from "./pages/common/SystemAdminDashboardPage.js
 import AdminNavbar from "./components/common/AdminNavbar.jsx";
 import DeliveryDashboardPage from "./pages/delivery/DeliveryDashboardPage.jsx";
 import RestaurantDashboardPage from "./pages/restaurant/RestaurantDashboardPage.jsx";
+import RestaurantForm from "./components/restaurant/RestaurantForm";
+import MenuItemForm from "./components/restaurant/MenuItemForm";
+import MenuItemEditPage from "./pages/restaurant/MenuItemEditPage.jsx";
 import CartPage from "./pages/common/CartPage.jsx";
 import CheckoutPage from "./pages/common/CheckoutPage.jsx";
 import PaymentSuccessPage from "./pages/common/PaymentSuccessPage.jsx";
@@ -362,8 +365,8 @@ function App() {
               )
             }
           />
-          <Route
-            path="/restaurantadmin/dashboard"
+           <Route
+            path="/restaurantadmin/dashboard" 
             element={
               authUser?.role === "restaurant_admin" ? (
                 <RestaurantDashboardPage />
@@ -372,6 +375,8 @@ function App() {
               )
             }
           />
+          <Route path="/menu-items/:id/edit" element={<MenuItemEditPage />} />
+
         </Routes>
       </main>
     </div>
