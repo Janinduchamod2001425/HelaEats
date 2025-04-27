@@ -16,7 +16,7 @@ export const useRestaurantStore = create((set) => ({
       const response = await restaurantApi.get('/restaurants');
       console.log("API Response:", response.data); // Debug log
       set({ 
-        restaurants: Array.isArray(response.data) ? response.data : [],
+        restaurants: Array.isArray(response.data.data) ? response.data.data : [],
         loading: false 
       });
     } catch (error) {

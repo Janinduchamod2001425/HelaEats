@@ -29,6 +29,7 @@ import RestaurantDashboardPage from "./pages/restaurant/RestaurantDashboardPage.
 import RestaurantForm from "./components/restaurant/RestaurantForm";
 import MenuItemForm from "./components/restaurant/MenuItemForm";
 import MenuItemEditPage from "./pages/restaurant/MenuItemEditPage.jsx";
+import RestaurantMenuPage from './pages/common/RestaurantMenuPage'
 import CartPage from "./pages/common/CartPage.jsx";
 import CheckoutPage from "./pages/common/CheckoutPage.jsx";
 import PaymentSuccessPage from "./pages/common/PaymentSuccessPage.jsx";
@@ -376,6 +377,7 @@ function App() {
             }
           />
           <Route path="/menu-items/:id/edit" element={<MenuItemEditPage />} />
+          <Route path="/restaurants/:restaurantId/menu" element={<RestaurantMenuPage />} />
 
         </Routes>
       </main>
