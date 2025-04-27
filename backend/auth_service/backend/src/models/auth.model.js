@@ -26,7 +26,7 @@ const authSchema = new mongoose.Schema(
         role: {
             type: String,
             enum: ["system_admin", "restaurant_admin", "delivery_personnel", "customer"],
-            required: true // Now required for all signups
+            required: true
         },
         restaurantId: {
             type: String,
@@ -35,6 +35,24 @@ const authSchema = new mongoose.Schema(
         vehicleNumber: {
             type: String,
             required: false,
+        },
+        // Only relevant for delivery_personnel
+        status: {
+            type: String,
+            enum: ["available", "on_delivery", "offline"],
+            required: false
+        },
+        // Geo location of delivery personnel
+        location: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: false
+            },
+            coordinates: {
+                type: [Number],
+                required: false
+            }
         },
         // Track registration status
         isProfileComplete: {
@@ -45,6 +63,8 @@ const authSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+authSchema.index({location: "2dsphere"});
 
 // Add pre-save hook to ensure role-specific fields are set later
 authSchema.pre("save", function (next) {
@@ -58,7 +78,7 @@ authSchema.pre("save", function (next) {
                 if (!this.restaurantId || !this.contact) throw new Error("Restaurant admin requires restaurantId and contact");
             },
             delivery_personnel: () => {
-                if (!this.vehicleNumber || !this.contact) throw new Error("Delivery personnel requires vehicleNumber and contact");
+                if (!this.vehicleNumber || !this.contact || !this.status || !this.location) throw new Error("Delivery personnel requires vehicleNumber, contact, Status and location");
             },
             system_admin: () => {
                 if (!this.contact) throw new Error("System Admin requires contact");
