@@ -34,14 +34,26 @@ const getRestaurants = async (req, res) => {
     
     if (isActive) filter.isActive = isActive === 'true';
     if (cuisineType) filter.cuisineType = cuisineType;
-    if (adminId) filter.adminId = adminId; // Filter by adminId if provided
+    if (adminId) filter.adminId = adminId;
     
     const restaurants = await Restaurant.find(filter);
-    res.status(httpStatus.OK).send(restaurants);
+    
+    // Explicitly set status code and return JSON
+    return res.status(200).json({
+      success: true,
+      data: restaurants
+    });
+    
   } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
+    console.error('Error fetching restaurants:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch restaurants'
+    });
   }
 };
+
+
 
 const getRestaurantById = async (req, res) => {
   try {
@@ -140,6 +152,8 @@ const getRestaurantByAdmin = async (req, res) => {
 
 
 
+
+
 module.exports = {
   createRestaurant,
   getRestaurants,
@@ -148,4 +162,4 @@ module.exports = {
   toggleRestaurantStatus,
   deleteRestaurant, 
   getRestaurantByAdmin,
-};
+};         
