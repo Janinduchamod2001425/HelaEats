@@ -8,15 +8,32 @@ const config = require('./config/config');
 // Import routes
 const restaurantRoutes = require('./routes/restaurant.routes');
 const menuItemRoutes = require('./routes/menuItem.routes');
+const { verifyRestaurantAdmin } = require('./middleware/restaurant.middleware');
 
 // Initialize Express app
 const app = express();
 
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:5173', // Your frontend origin
+  credentials: true, // Allow credentials (cookies, auth headers)
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-id']
+};
+
 // Middleware
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsOptions)); // Apply CORS with options
+app.options('*', cors(corsOptions)); // Handle preflight requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Add headers to responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  next();
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -30,6 +47,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/menu-items', menuItemRoutes);
+app.use('/api/restaurants/:id', verifyRestaurantAdmin);
 
 // 404 Handler
 app.use((req, res) => {
