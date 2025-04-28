@@ -5,6 +5,7 @@ const itemSchema = new mongoose.Schema({
   name: String,
   quantity: Number,
   price: Number,
+  imageUrl: String,
 });
 
 const basketSchema = new mongoose.Schema({

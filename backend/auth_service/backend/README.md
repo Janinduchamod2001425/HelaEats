@@ -1,4 +1,4 @@
-# Backend Setup
+# Backend Setup (Auth Service)
 
 1. Install node modules
 
