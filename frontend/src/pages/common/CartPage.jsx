@@ -46,12 +46,40 @@
 
 import { useCartStore } from "../../store/useCartStore";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function CartPage() {
   const cart = useCartStore((state) => state.cart);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateItem = useCartStore((state) => state.updateItem);
-  const getCartTotal = useCartStore((state) => state.getCartTotal);
+  // const getCartTotal = useCartStore((state) => state.getCartTotal);
+
+  // Calculate total directly in the component
+  const calculateTotal = () => {
+    return cart
+      .reduce((total, item) => {
+        // Ensure both price and quantity are numbers
+        const price = parseFloat(item.price);
+        const quantity = parseInt(item.quantity);
+        const itemTotal = price * quantity;
+        console.log(
+          `Item: ${item.name}, Price: ${price}, Qty: ${quantity}, Total: ${itemTotal}`
+        );
+        return total + itemTotal;
+      }, 0)
+      .toFixed(2);
+  };
+
+  console.log("Cart total:", calculateTotal());
+
+  const handleQuantityUpdate = async (itemId, restaurantId, newQuantity) => {
+    try {
+      await updateItem(itemId, restaurantId, Math.max(1, newQuantity));
+    } catch (error) {
+      console.error("Failed to update quantity:", error);
+      toast.error("Failed to update quantity");
+    }
+  };
 
   if (cart.length === 0) {
     return (
@@ -80,19 +108,30 @@ export default function CartPage() {
             key={item.itemId}
             className="flex items-center justify-between p-4 border-b last:border-b-0"
           >
-            <div className="flex-1">
-              <h3 className="font-medium">{item.name}</h3>
-              <p className="text-sm text-gray-600">Rs. {item.price} each</p>
+            <div className="flex items-center gap-4">
+              {item.imageUrl && (
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded"
+                />
+              )}
+              <div className="flex-1">
+                <h3 className="font-medium">{item.name}</h3>
+                <p className="text-sm text-gray-600">
+                  Rs. {item.price.toFixed(2)} each
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="flex items-center">
                 <button
                   onClick={() =>
-                    updateItem(
+                    handleQuantityUpdate(
                       item.itemId,
                       item.restaurantId,
-                      Math.max(1, item.quantity - 1)
+                      item.quantity - 1
                     )
                   }
                   className="px-2 py-1 border rounded-l hover:bg-gray-100"
@@ -105,17 +144,13 @@ export default function CartPage() {
                   value={item.quantity}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 1;
-                    updateItem(
-                      item.itemId,
-                      item.restaurantId,
-                      Math.max(1, value)
-                    );
+                    handleQuantityUpdate(item.itemId, item.restaurantId, value);
                   }}
                   className="w-16 px-2 py-1 border-y text-center [appearance:textfield]"
                 />
                 <button
                   onClick={() =>
-                    updateItem(
+                    handleQuantityUpdate(
                       item.itemId,
                       item.restaurantId,
                       item.quantity + 1
@@ -128,7 +163,7 @@ export default function CartPage() {
               </div>
 
               <p className="w-24 text-right font-medium">
-                Rs. {item.price * item.quantity}
+                Rs. {(item.price * item.quantity).toFixed(2)}
               </p>
 
               <button
@@ -155,7 +190,7 @@ export default function CartPage() {
         <div className="p-4 border-t">
           <div className="flex justify-between items-center mb-4">
             <span className="font-bold text-lg">Total</span>
-            <span className="font-bold text-lg">Rs. {getCartTotal()}</span>
+            <span className="font-bold text-lg">Rs. {calculateTotal()}</span>
           </div>
 
           <div className="flex gap-4">

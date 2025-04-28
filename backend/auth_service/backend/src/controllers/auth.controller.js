@@ -331,3 +331,27 @@ export const checkAuth = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// get user by id
+// Add this new controller function
+export const getUserById = async (req, res) => {
+  try {
+    const user = await Auth.findById(req.params.userId).select(
+      "name email role"
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

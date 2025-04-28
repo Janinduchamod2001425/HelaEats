@@ -15,18 +15,39 @@ export const confirmOrder = async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
+    // Calculate total with precise decimal handling
     const totalAmount = cart.baskets.reduce((total, basket) => {
       const basketTotal = basket.items.reduce((sum, item) => {
-        return sum + item.price * item.quantity;
+        const price = parseFloat(item.price);
+        const quantity = parseInt(item.quantity);
+        console.log(
+          `Order calc - Item: ${
+            item.name
+          }, Price: ${price}, Qty: ${quantity}, Total: ${price * quantity}`
+        );
+        return sum + price * quantity;
       }, 0);
       return total + basketTotal;
     }, 0);
+
+    // Format to 2 decimal places
+    const formattedTotal = parseFloat(totalAmount.toFixed(2));
+
+    console.log({
+      calculatedTotal: totalAmount,
+      formattedTotal: formattedTotal,
+      basketsCount: cart.baskets.length,
+      itemsCount: cart.baskets.reduce(
+        (count, basket) => count + basket.items.length,
+        0
+      ),
+    });
 
     const newOrder = new Order({
       userId,
       orderId: uuidv4(),
       baskets: cart.baskets,
-      totalAmount,
+      totalAmount: formattedTotal,
     });
 
     await newOrder.save();
@@ -95,6 +116,65 @@ export const getOrderById = async (req, res) => {
 
     res.status(200).json(order); // return full order object
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//update order status
+export const updateOrderStatus = async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  try {
+    const order = await Order.findOneAndUpdate(
+      { orderId },
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated successfully",
+      data: order,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update order status",
+      error: error.message,
+    });
+  }
+};
+
+// display order details
+export const getRestaurantOrders = async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    // Find all orders that have baskets containing items from this restaurant
+    const orders = await Order.find({
+      "baskets.restaurantId": restaurantId,
+    }).sort({ createdAt: -1 });
+
+    // Filter out baskets from other restaurants
+    const filteredOrders = orders.map((order) => ({
+      ...order.toObject(),
+      baskets: order.baskets.filter(
+        (basket) => basket.restaurantId === restaurantId
+      ),
+    }));
+
+    res.status(200).json({ orders: filteredOrders });
+  } catch (err) {
+    console.error("Error fetching restaurant orders:", err);
     res.status(500).json({ error: err.message });
   }
 };

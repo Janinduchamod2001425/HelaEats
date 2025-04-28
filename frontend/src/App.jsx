@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import Navbar from "./components/common/Navbar.jsx";
 import PublicNavbar from "./components/common/PublicNavbar.jsx";
+import RestaurantLayout from "./components/restaurant/RestaurantLayout.jsx";
 
 // Lottie Animation
 import Lottie from "lottie-react";
@@ -29,10 +30,13 @@ import RestaurantDashboardPage from "./pages/restaurant/RestaurantDashboardPage.
 import RestaurantForm from "./components/restaurant/RestaurantForm";
 import MenuItemForm from "./components/restaurant/MenuItemForm";
 import MenuItemEditPage from "./pages/restaurant/MenuItemEditPage.jsx";
-import RestaurantMenuPage from './pages/common/RestaurantMenuPage'
+import RestaurantMenuPage from "./pages/common/RestaurantMenuPage";
 import CartPage from "./pages/common/CartPage.jsx";
 import CheckoutPage from "./pages/common/CheckoutPage.jsx";
 import PaymentSuccessPage from "./pages/common/PaymentSuccessPage.jsx";
+import RestaurantOrdersPage from "./pages/common/RestaurantOrdersPage.jsx";
+import RestaurantSettingsPage from "./components/restaurant/RestaurantSettingsPage.jsx";
+import EditMenuItem from "./pages/restaurant/editMenuItem.jsx";
 
 // function App() {
 //   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -262,6 +266,7 @@ function App() {
 
   const isPublicPath = publicPaths.includes(location.pathname) && !authUser;
   const isAdminPath = adminPaths.includes(location.pathname);
+  const isRestaurantPath = location.pathname.startsWith("/restaurantadmin");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -321,6 +326,12 @@ function App() {
               authUser ? <PaymentSuccessPage /> : <Navigate to="/login" />
             }
           />
+          <Route
+            path="/payment-cancel"
+            element={
+              authUser ? <PaymentSuccessPage /> : <Navigate to="/login" />
+            }
+          />
 
           {/* Admin Routes */}
           <Route path="/admin/intro" element={<SystemAdminIntroPage />} />
@@ -366,8 +377,8 @@ function App() {
               )
             }
           />
-           <Route
-            path="/restaurantadmin/dashboard" 
+          {/* <Route
+            path="/restaurantadmin/dashboard"
             element={
               authUser?.role === "restaurant_admin" ? (
                 <RestaurantDashboardPage />
@@ -376,9 +387,35 @@ function App() {
               )
             }
           />
-          <Route path="/menu-items/:id/edit" element={<MenuItemEditPage />} />
-          <Route path="/restaurants/:restaurantId/menu" element={<RestaurantMenuPage />} />
-
+          <Route path="/menu-items/:id/edit" element={<MenuItemEditPage />} /> */}
+          <Route
+            path="/restaurantadmin/*"
+            element={
+              authUser?.role === "restaurant_admin" ? (
+                <RestaurantLayout>
+                  <Routes>
+                    <Route
+                      path="dashboard"
+                      element={<RestaurantDashboardPage />}
+                    />
+                    <Route path="orders" element={<RestaurantOrdersPage />} />
+                    <Route path="menu" element={<MenuItemEditPage />} />
+                    <Route
+                      path="settings"
+                      element={<RestaurantSettingsPage />}
+                    />
+                    <Route path="menu/:id/edit" element={<EditMenuItem />} />
+                  </Routes>
+                </RestaurantLayout>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/restaurants/:restaurantId/menu"
+            element={<RestaurantMenuPage />}
+          />
         </Routes>
       </main>
     </div>

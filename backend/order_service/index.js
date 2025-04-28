@@ -25,6 +25,15 @@ app.use(express.json());
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 
+// error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
+
 // Connect to MongoDB Atlas
 mongoose
   .connect(process.env.MONGO_URI)

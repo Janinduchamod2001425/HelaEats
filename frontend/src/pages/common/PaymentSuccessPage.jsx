@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { axiosPaymentInstance } from "../../lib/axios";
+import { useCartStore } from "../../store/useCartStore";
 import axios from "axios";
 
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("checking");
+  const clearCart = useCartStore((state) => state.clearCart);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -30,6 +32,7 @@ export default function PaymentSuccessPage() {
         // Check both success flag and payment status
         if (response.data.success || response.data.status === "success") {
           setStatus("success");
+          await clearCart();
         } else {
           console.log("Payment not successful:", response.data); // Debug log
           setStatus("failed");
@@ -41,7 +44,7 @@ export default function PaymentSuccessPage() {
     };
 
     verifyPayment();
-  }, [searchParams]);
+  }, [searchParams, clearCart]);
 
   return (
     <div className="max-w-md mx-auto p-6 text-center">

@@ -88,36 +88,50 @@ export default function CheckoutPage() {
       setIsProcessing(true);
 
       // Calculate total before payment
-      const cartTotal = cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      );
-      console.log("Cart total:", cartTotal); // Debug log
+      const cartTotal = parseFloat(
+        cart.reduce(
+          (sum, item) => sum + parseFloat(item.price) * parseInt(item.quantity),
+          0
+        )
+      ).toFixed(2);
+      console.log("frontend cart total:", cartTotal); // Debug log
 
       // Push cart to backend
-      for (let item of cart) {
-        await axiosOrderInstance.post(`/api/cart/${item.restaurantId}/items`, {
-          itemId: item.itemId,
-          quantity: item.quantity,
-          price: item.price,
-        });
-      }
+      // for (let item of cart) {
+      //   await axiosOrderInstance.post(`/api/cart/${item.restaurantId}/items`, {
+      //     itemId: item.itemId,
+      //     quantity: item.quantity,
+      //     name: item.name,
+      //     price: parseFloat(item.price),
+      //   });
+      // }
 
       // Confirm order
       const confirmRes = await axiosOrderInstance.post("/api/order/confirm");
 
       const orderId = confirmRes.data.order.orderId;
 
+      // Verify the amounts match
+      if (
+        parseFloat(cartTotal) !== parseFloat(confirmRes.data.order.totalAmount)
+      ) {
+        console.error("Amount mismatch:", {
+          frontendTotal: cartTotal,
+          backendTotal: confirmRes.data.order.totalAmount,
+        });
+        throw new Error("Cart total mismatch");
+      }
+
       // Initialize payment
       const payRes = await axiosPaymentInstance.post("/api/payment/pay", {
         orderId,
         withCredentials: true,
-        amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        // amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
       });
 
       // Remove strict amount verification since Stripe handles cents differently
       if (payRes.data.url) {
-        clearCart();
+        await clearCart();
         window.location.href = payRes.data.url;
       } else {
         throw new Error("No payment URL received");
