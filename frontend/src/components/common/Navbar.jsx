@@ -8,10 +8,14 @@ import {
   User,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useCartStore } from "../../store/useCartStore";
 
 function Navbar() {
   const [isDelivery, setIsDelivery] = useState(true);
-  const [cartCount] = useState(0); // Make dynamic later
+  // const cartCount = useCartStore((state) => state.getCartCount); // Make dynamic
+  const cartCount = useCartStore((state) =>
+    state.cart.reduce((total, item) => total + item.quantity, 0)
+  );
   const navigate = useNavigate();
 
   return (
@@ -74,9 +78,11 @@ function Navbar() {
             className="w-6 h-6 cursor-pointer"
             onClick={() => navigate("/cart")}
           />
-          <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-            {cartCount}
-          </span>
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
         </div>
         <User
           className="w-6 h-6 cursor-pointer"

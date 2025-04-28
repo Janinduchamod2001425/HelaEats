@@ -49,6 +49,11 @@ const restaurantSchema = new mongoose.Schema({
   imageUrl: {
     type: String,
   },
+  adminId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Auth',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -56,6 +61,9 @@ const restaurantSchema = new mongoose.Schema({
 }, {
   timestamps: true,
 });
+
+// Add index for adminId to improve query performance
+restaurantSchema.index({ adminId: 1 });
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 

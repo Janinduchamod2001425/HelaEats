@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiSave, FiLogOut } from "react-icons/fi";
 import toast from "react-hot-toast";
@@ -96,7 +97,7 @@ const ProfilePage = () => {
         },
         (error) => {
           toast.error("Could not get your location: " + error.message);
-        },
+        }
       );
     } else {
       toast.error("Geolocation is not supported by your browser");
@@ -116,8 +117,16 @@ const ProfilePage = () => {
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+    try {
+      // const logout = useAuthStore.getState().logout;
+      const resetCart = useCartStore.getState().resetStore;
+
+      await logout();
+      resetCart();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   if (!authUser) return <div className="p-4">Loading profile...</div>;
@@ -276,7 +285,7 @@ const ProfilePage = () => {
                         type="text"
                         value={
                           statusOptions.find(
-                            (opt) => opt.value === authUser[field],
+                            (opt) => opt.value === authUser[field]
                           )?.label || "Not provided"
                         }
                         readOnly
@@ -287,7 +296,9 @@ const ProfilePage = () => {
                         type="text"
                         value={
                           authUser[field]?.coordinates
-                            ? `${authUser[field].coordinates[1].toFixed(4)}, ${authUser[field].coordinates[0].toFixed(4)}`
+                            ? `${authUser[field].coordinates[1].toFixed(
+                                4
+                              )}, ${authUser[field].coordinates[0].toFixed(4)}`
                             : "Not provided"
                         }
                         readOnly

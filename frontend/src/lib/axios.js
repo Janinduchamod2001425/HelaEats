@@ -32,6 +32,9 @@ axiosAuthInstance.interceptors.response.use(
 export const axiosOrderInstance = axios.create({
   baseURL: "http://localhost:5003",
   withCredentials: true, // Important for sending cookies
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export const axiosPaymentInstance = axios.create({
