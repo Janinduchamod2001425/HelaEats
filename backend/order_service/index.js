@@ -34,6 +34,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.get("/health", (req, res) => {
+  res.send("OK");
+});
+
 // Connect to MongoDB Atlas
 mongoose
   .connect(process.env.MONGO_URI)

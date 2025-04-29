@@ -33,7 +33,7 @@ app.use("/api/payment", paymentRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "healthy" });
+  res.send("OK");
 });
 
 // MongoDB connection
