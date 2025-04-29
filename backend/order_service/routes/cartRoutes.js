@@ -10,11 +10,6 @@ import { verifyToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// router.post("/:restaurantId/items", addItem);
-// router.put("/:restaurantId/items/:itemId", updateItem);
-// router.delete("/:restaurantId/items/:itemId", deleteItem);
-// router.get("/", getCart);
-// router.delete("/", clearCart);
 
 router.post("/:restaurantId/items", verifyToken, addItem);
 router.put("/:restaurantId/items/:itemId", verifyToken, updateItem);

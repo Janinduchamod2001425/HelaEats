@@ -1,6 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiMenu, FiShoppingBag, FiSettings } from "react-icons/fi";
+import {
+  FiHome,
+  FiMenu,
+  FiShoppingBag,
+  FiSettings,
+  FiDollarSign,
+} from "react-icons/fi";
 
 const RestaurantLayout = ({ children }) => {
   const location = useLocation();
@@ -20,6 +26,11 @@ const RestaurantLayout = ({ children }) => {
       path: "/restaurantadmin/orders",
       name: "Orders",
       icon: <FiShoppingBag size={20} />,
+    },
+    {
+      path: "/restaurantadmin/payments",
+      name: "Payments",
+      icon: <FiDollarSign size={20} />,
     },
     {
       path: "/restaurantadmin/settings",

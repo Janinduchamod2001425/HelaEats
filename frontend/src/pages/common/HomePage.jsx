@@ -20,7 +20,12 @@ import promo4 from "../../images/home/promo4.jpg";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { restaurants = [], loading, error, fetchRestaurants } = useRestaurantStore();
+  const {
+    restaurants = [],
+    loading,
+    error,
+    fetchRestaurants,
+  } = useRestaurantStore();
   const [activeCategory, setActiveCategory] = useState("All");
 
   // Debug: Log restaurants data when it changes
@@ -31,18 +36,19 @@ const HomePage = () => {
   // Get all unique cuisine types from restaurants
   const allCuisineTypes = useMemo(() => {
     if (!restaurants || restaurants.length === 0) return [];
-    return [...new Set(restaurants.map(r => r.cuisineType).filter(Boolean))];
+    return [...new Set(restaurants.map((r) => r.cuisineType).filter(Boolean))];
   }, [restaurants]);
 
   // Enhanced filter function with case-insensitive comparison
   const filteredRestaurants = useMemo(() => {
     if (!restaurants || restaurants.length === 0) return [];
-    
+
     if (activeCategory === "All") return restaurants;
-    
-    return restaurants.filter(r => 
-      r.cuisineType && 
-      r.cuisineType.toLowerCase() === activeCategory.toLowerCase()
+
+    return restaurants.filter(
+      (r) =>
+        r.cuisineType &&
+        r.cuisineType.toLowerCase() === activeCategory.toLowerCase()
     );
   }, [restaurants, activeCategory]);
 
@@ -78,15 +84,15 @@ const HomePage = () => {
   // Cuisine categories - dynamically include all available types plus "All"
   const categories = useMemo(() => {
     const uniqueCategories = ["All", ...allCuisineTypes];
-    return uniqueCategories.filter((value, index, self) => 
-      self.indexOf(value) === index
+    return uniqueCategories.filter(
+      (value, index, self) => self.indexOf(value) === index
     );
   }, [allCuisineTypes]);
 
   // Enhanced empty state message
   const renderEmptyMessage = () => {
     if (loading) return null;
-    
+
     if (restaurants.length === 0) {
       return (
         <div className="text-center text-gray-500 py-8">
@@ -94,12 +100,10 @@ const HomePage = () => {
         </div>
       );
     }
-    
+
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">
-          No {activeCategory} restaurants found.
-        </p>
+        <p className="text-gray-500">No {activeCategory} restaurants found.</p>
         {allCuisineTypes.length > 0 && (
           <p className="text-sm text-gray-400 mt-2">
             Available cuisines: {allCuisineTypes.join(", ")}
@@ -234,9 +238,11 @@ const HomePage = () => {
       {/* Restaurants Section */}
       <div className="px-4 py-3">
         <h2 className="text-xl font-semibold mb-2">
-          {activeCategory === "All" ? "All Restaurants" : `${activeCategory} Restaurants`}
+          {activeCategory === "All"
+            ? "All Restaurants"
+            : `${activeCategory} Restaurants`}
         </h2>
-        
+
         {error ? (
           <div className="text-center text-red-500 py-8">
             Failed to load restaurants. Please try again.
@@ -273,12 +279,18 @@ const HomePage = () => {
                 <div className="p-3">
                   <h3 className="font-semibold text-lg">{restaurant.name}</h3>
                   <div className="flex items-center mt-1">
-                    <span className="text-yellow-500">⭐ {restaurant.rating || "New"}</span>
+                    <span className="text-yellow-500">
+                      ⭐ {restaurant.rating || "New"}
+                    </span>
                     <span className="mx-2 text-gray-300">•</span>
-                    <span className="text-gray-500">{restaurant.cuisineType}</span>
+                    <span className="text-gray-500">
+                      {restaurant.cuisineType}
+                    </span>
                   </div>
                   <div className="flex items-center mt-1">
-                    <span className="text-gray-500">{restaurant.location?.city}</span>
+                    <span className="text-gray-500">
+                      {restaurant.location?.city}
+                    </span>
                     <span className="mx-2 text-gray-300">•</span>
                     <span className="text-sm text-gray-500">
                       {restaurant.isActive ? "Open Now" : "Closed"}
@@ -295,43 +307,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-// import { useCartStore } from "../../store/useCartStore";
-
-// const mockItems = [
-//   { restaurantId: "resto1", itemId: "item1", name: "Pizza", price: 1000 },
-//   { restaurantId: "resto1", itemId: "item2", name: "Burger", price: 500 },
-// ];
-
-// export default function HomePage() {
-//   const addItem = useCartStore((state) => state.addItem);
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-xl font-bold mb-4">Menu (Mock Data)</h1>
-//       {mockItems.map((item) => (
-//         <div key={item.itemId} className="mb-2">
-//           <p>
-//             {item.name} - Rs. {item.price}
-//           </p>
-//           <button
-//             onClick={() => addItem({ ...item, quantity: 1 })}
-//             className="bg-blue-500 text-white px-2 py-1 rounded"
-//           >
-//             Add to Cart
-//           </button>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-

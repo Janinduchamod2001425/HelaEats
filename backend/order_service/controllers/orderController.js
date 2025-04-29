@@ -16,15 +16,11 @@ export const confirmOrder = async (req, res) => {
     }
 
     // Calculate total with precise decimal handling
+    // Calculate total with same precision as frontend
     const totalAmount = cart.baskets.reduce((total, basket) => {
       const basketTotal = basket.items.reduce((sum, item) => {
         const price = parseFloat(item.price);
         const quantity = parseInt(item.quantity);
-        console.log(
-          `Order calc - Item: ${
-            item.name
-          }, Price: ${price}, Qty: ${quantity}, Total: ${price * quantity}`
-        );
         return sum + price * quantity;
       }, 0);
       return total + basketTotal;
@@ -33,14 +29,19 @@ export const confirmOrder = async (req, res) => {
     // Format to 2 decimal places
     const formattedTotal = parseFloat(totalAmount.toFixed(2));
 
-    console.log({
-      calculatedTotal: totalAmount,
-      formattedTotal: formattedTotal,
-      basketsCount: cart.baskets.length,
-      itemsCount: cart.baskets.reduce(
-        (count, basket) => count + basket.items.length,
-        0
-      ),
+    // Debug logging
+    console.log("Backend order calculation:", {
+      userId,
+      baskets: cart.baskets.map((basket) => ({
+        restaurantId: basket.restaurantId,
+        items: basket.items.map((item) => ({
+          name: item.name,
+          price: parseFloat(item.price),
+          quantity: parseInt(item.quantity),
+          subtotal: parseFloat(item.price) * parseInt(item.quantity),
+        })),
+      })),
+      totalAmount: formattedTotal,
     });
 
     const newOrder = new Order({
@@ -51,7 +52,7 @@ export const confirmOrder = async (req, res) => {
     });
 
     await newOrder.save();
-    await Cart.deleteOne({ userId }); // clear cart after confirming
+    // await Cart.deleteOne({ userId }); // clear cart after confirming
 
     res.status(201).json({
       message: "Order confirmed",

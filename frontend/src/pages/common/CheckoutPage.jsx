@@ -1,72 +1,3 @@
-// import { useCartStore } from "../../store/useCartStore";
-// import axios from "axios";
-
-// export default function CheckoutPage() {
-//   const cart = useCartStore((state) => state.cart);
-//   const clearCart = useCartStore((state) => state.clearCart);
-
-//   const confirmOrderAndPay = async () => {
-//     try {
-//       const userId = "user123";
-
-//       // 1️⃣ Push frontend cart to backend cart
-//       for (let item of cart) {
-//         await axios.post(
-//           `http://localhost:5003/api/cart/${item.restaurantId}/items`,
-//           {
-//             userId,
-//             itemId: item.itemId,
-//             quantity: item.quantity,
-//           }
-//         );
-//       }
-
-//       // 2️⃣ Now confirm order
-//       const confirmRes = await axios.post(
-//         "http://localhost:5003/api/order/confirm",
-//         {
-//           userId,
-//         }
-//       );
-
-//       const orderId = confirmRes.data.order.orderId;
-//       console.log("🧾 Confirmed Order:", orderId);
-
-//       // 3️⃣ Start payment
-//       const payRes = await axios.post("http://localhost:5004/api/payment/pay", {
-//         orderId,
-//       });
-
-//       console.log("🔗 Payment URL:", payRes.data.paymentUrl);
-
-//       clearCart(); // clear Zustand cart
-//       // window.location.href = payRes.data.paymentUrl;
-//       window.location.replace(payRes.data.paymentUrl);
-//     } catch (err) {
-//       console.error("🚨 Payment Error:", err.response?.data || err.message);
-//       alert(err.response?.data?.message || "Something went wrong");
-//     }
-//   };
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-xl font-bold mb-4">Checkout</h1>
-//       <ul>
-//         {cart.map((item) => (
-//           <li key={item.itemId}>
-//             {item.name} - Rs. {item.price} x {item.quantity}
-//           </li>
-//         ))}
-//       </ul>
-//       <button
-//         onClick={confirmOrderAndPay}
-//         className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-//       >
-//         Confirm Order & Pay
-//       </button>
-//     </div>
-//   );
-// }
 
 import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
@@ -87,58 +18,67 @@ export default function CheckoutPage() {
     try {
       setIsProcessing(true);
 
-      // Calculate total before payment
-      const cartTotal = parseFloat(
-        cart.reduce(
-          (sum, item) => sum + parseFloat(item.price) * parseInt(item.quantity),
-          0
-        )
-      ).toFixed(2);
-      console.log("frontend cart total:", cartTotal); // Debug log
+      // Calculate total with precise decimal handling
+      const cartTotal = cart
+        .reduce((total, item) => {
+          const price = parseFloat(item.price);
+          const quantity = parseInt(item.quantity);
+          return total + price * quantity;
+        }, 0)
+        .toFixed(2);
 
-      // Push cart to backend
-      // for (let item of cart) {
-      //   await axiosOrderInstance.post(`/api/cart/${item.restaurantId}/items`, {
-      //     itemId: item.itemId,
-      //     quantity: item.quantity,
-      //     name: item.name,
-      //     price: parseFloat(item.price),
-      //   });
-      // }
+      // Debug logging
+      console.log("Cart calculation details:", {
+        items: cart.map((item) => ({
+          name: item.name,
+          price: parseFloat(item.price),
+          quantity: parseInt(item.quantity),
+          subtotal: parseFloat(item.price) * parseInt(item.quantity),
+        })),
+        total: cartTotal,
+      });
 
-      // Confirm order
+      // First confirm order
       const confirmRes = await axiosOrderInstance.post("/api/order/confirm");
+      console.log("Order confirmation response:", confirmRes.data);
+
+      if (!confirmRes.data.order) {
+        throw new Error("No order data received");
+      }
 
       const orderId = confirmRes.data.order.orderId;
+      const backendTotal = parseFloat(
+        confirmRes.data.order.totalAmount
+      ).toFixed(2);
 
-      // Verify the amounts match
-      if (
-        parseFloat(cartTotal) !== parseFloat(confirmRes.data.order.totalAmount)
-      ) {
+      // Compare totals with exact decimal match
+      if (cartTotal !== backendTotal) {
         console.error("Amount mismatch:", {
           frontendTotal: cartTotal,
-          backendTotal: confirmRes.data.order.totalAmount,
+          backendTotal: backendTotal,
+          difference: Math.abs(
+            parseFloat(cartTotal) - parseFloat(backendTotal)
+          ),
         });
-        throw new Error("Cart total mismatch");
+
+        // Clear inconsistent cart state
+        await clearCart();
+        throw new Error("Cart total mismatch - please try again");
       }
 
       // Initialize payment
       const payRes = await axiosPaymentInstance.post("/api/payment/pay", {
-        orderId,
-        withCredentials: true,
-        // amount: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        orderId: orderId,
       });
 
-      // Remove strict amount verification since Stripe handles cents differently
       if (payRes.data.url) {
-        await clearCart();
         window.location.href = payRes.data.url;
       } else {
         throw new Error("No payment URL received");
       }
     } catch (err) {
       console.error("Payment Error:", err);
-      alert(err.response?.data?.message || "Something went wrong");
+      alert(err.message || "Failed to process payment");
     } finally {
       setIsProcessing(false);
     }

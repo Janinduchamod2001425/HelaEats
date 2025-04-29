@@ -30,6 +30,13 @@ export const initiatePayment = async (req, res) => {
       return res.status(400).json({ message: "Invalid or already paid order" });
     }
 
+    const restaurantId = order.baskets?.[0]?.restaurantId;
+    if (!restaurantId) {
+      return res
+        .status(400)
+        .json({ message: "Restaurant ID not found in order" });
+    }
+
     // Enhanced amount validation and conversion
     const rawAmount = parseFloat(order.totalAmount);
     if (isNaN(rawAmount) || rawAmount <= 0) {
@@ -89,6 +96,10 @@ export const initiatePayment = async (req, res) => {
       paymentMethod: "stripe",
       status: "pending",
       currency: "lkr",
+      metadata: {
+        restaurantId: restaurantId,
+        orderType: "food_delivery",
+      },
     });
     await payment.save();
 
@@ -136,6 +147,14 @@ export const checkPaymentStatus = async (req, res) => {
             withCredentials: true,
           }
         );
+
+        await axios.delete(`${process.env.ORDER_SERVICE_URL}/api/cart`, {
+          headers: {
+            Cookie: `jwt=${token}`,
+          },
+          withCredentials: true,
+        });
+
         console.log("Order status update response:", response.data);
       } catch (error) {
         console.error("Error updating order status:", {
@@ -191,5 +210,92 @@ export const checkPaymentStatus = async (req, res) => {
   } catch (err) {
     console.error("Payment status check error:", err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+// get restaurant payments
+
+export const getRestaurantPayments = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const query = {
+      "metadata.restaurantId": restaurantId,
+    };
+
+    // Add date filtering if provided
+    if (startDate && endDate) {
+      query.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+
+    const payments = await Payment.find(query)
+      .sort({ createdAt: -1 })
+      .limit(100); // Limit to last 100 payments for performance
+
+    res.json(payments);
+  } catch (error) {
+    console.error("Error fetching restaurant payments:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getRestaurantPaymentStats = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { period } = req.query; // 'daily', 'weekly', 'monthly'
+
+    let dateFilter = {};
+    const now = new Date();
+
+    switch (period) {
+      case "daily":
+        dateFilter = {
+          $gte: new Date(now.setHours(0, 0, 0, 0)),
+        };
+        break;
+      case "weekly":
+        dateFilter = {
+          $gte: new Date(now.setDate(now.getDate() - 7)),
+        };
+        break;
+      case "monthly":
+      default:
+        dateFilter = {
+          $gte: new Date(now.setMonth(now.getMonth() - 1)),
+        };
+    }
+
+    const stats = await Payment.aggregate([
+      {
+        $match: {
+          "metadata.restaurantId": restaurantId,
+          status: "success",
+          createdAt: dateFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+          totalOrders: { $sum: 1 },
+          averageOrder: { $avg: "$amount" },
+        },
+      },
+    ]);
+
+    const response = stats[0] || {
+      totalRevenue: 0,
+      totalOrders: 0,
+      averageOrder: 0,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching payment statistics:", error);
+    res.status(500).json({ error: error.message });
   }
 };

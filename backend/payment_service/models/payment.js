@@ -44,6 +44,8 @@ const paymentSchema = new mongoose.Schema(
     metadata: {
       type: Map,
       of: String,
+      default: {},
+      required: true,
     },
   },
   {
@@ -54,6 +56,7 @@ const paymentSchema = new mongoose.Schema(
 // Indexes for better query performance
 paymentSchema.index({ createdAt: -1 });
 paymentSchema.index({ status: 1 });
+paymentSchema.index({ "metadata.restaurantId": 1, createdAt: -1 });
 
 const Payment = mongoose.model("Payment", paymentSchema);
 export default Payment;
