@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurant-service
+spec:
+  selector:
+    app: restaurant-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5005
+  type: ClusterIP
