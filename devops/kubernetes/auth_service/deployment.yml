@@ -2,8 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
+  labels:
+    app: auth-service
+    tier: backend
 spec:
   replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: auth-service
@@ -14,9 +21,35 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: auth-service:latest
+          image: your-registry/auth-service:1.0.0
           ports:
-            - containerPort: 5001
+            - containerPort: 5001  # Updated port
           env:
+            - name: PORT
+              value: "5001"  # Explicitly set in container
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secrets
+                  key: jwt-secret
             - name: MONGO_URI
-              value: "mongodb+srv://janiduchamod25:123@auth-service.t0zmdwq.mongodb.net/auth_service?retryWrites=true&w=majority&appName=Auth-Service"
+              value: "mongodb+srv://janiduchamod25:123@auth-service.xadn0ml.mongodb.net/?retryWrites=true&w=majority&appName=Auth-Service"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001  # Updated port
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5001  # Updated port
+            initialDelaySeconds: 5
+            periodSeconds: 5

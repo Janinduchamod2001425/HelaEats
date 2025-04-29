@@ -6,6 +6,8 @@ spec:
   selector:
     app: auth-service
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5001
+    - name: http
+      protocol: TCP
+      port: 80       # External cluster port
+      targetPort: 5001  # Matches container port
+  type: ClusterIP
